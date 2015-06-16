@@ -1,0 +1,7 @@
+typedef uint8_t Instruction;
+
+struct Code {
+    ... size; //fast least 16bit type... well maybe more... not sure
+    Instruction **blocks;
+    //Instruction *instructions; //have explicit return instruction at end of every block
+};
