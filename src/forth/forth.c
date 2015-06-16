@@ -13,6 +13,7 @@ Forth forth_new(Code c) {
     f->call = cstack_new(50);
     f->code = c;
     f->ip = block_getInstrSeq(code_getBlock(c,0));
+    f->cb = 0;
     f->zombie = 0;
     return f;
 }
@@ -40,6 +41,17 @@ void forth_step (Forth f) {
         default: instrNOOP(f);break;
     }
     //printf("data: %d, call: %d\n",dstack_size(f->data),cstack_size(f->call));
+}
+
+void forth_call(Forth f, codesize_t sub) {
+    assert(sub >= 0 && sub < code_getSize(f->code));
+    if(!cstack_isFull(f->call)) {
+        cstack_push(f->call, seq_next(f->ip));
+        f->ip = block_getInstrSeq(code_getBlock(f->code,sub));
+        f->cb = sub;
+    } else {
+        forth_exit(f);
+    }
 }
 
 void forth_exit(Forth f) {

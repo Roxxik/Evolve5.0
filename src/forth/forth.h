@@ -7,10 +7,12 @@
 #include "dstack.h"
 
 typedef struct Forth {
+    Number registers[10];
     DStack data;
     CStack call;
     Code code;
     Instruction *ip;
+    codesize_t cb;
     int zombie;
 } *Forth;
 
@@ -21,6 +23,8 @@ void forth_free(Forth f);
 int forth_running(Forth f);
 
 void forth_step(Forth f);
+
+void forth_call(Forth f, codesize_t sub);
 
 void forth_exit(Forth f);
 

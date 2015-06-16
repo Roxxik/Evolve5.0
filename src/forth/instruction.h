@@ -11,9 +11,17 @@
     X(NOOP)\
     X(EXIT)\
     X(CALL)\
+    X(IF)\
+    X(IFELSE)\
+    X(LOOP)\
     X(NUM)\
+    X(DUP)\
+    X(POP)\
     X(ADD)\
-    X(DUP)
+    X(SUB)\
+    X(MUL)\
+    X(DIV)\
+    X(MOD)\
 
 
 //don't actually need this
