@@ -10,9 +10,8 @@ seqsize_t seq_getSize(Instruction *seq) {
     while(*seq != INSTR_EXIT) {
         if(*seq == INSTR_NUM) {
             cnt += NUMBERSIZE;
-        } else {
-            cnt++;
         }
+        cnt++;
         seq = seq_next(seq);
     }
     return cnt;

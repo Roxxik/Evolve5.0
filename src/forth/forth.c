@@ -39,9 +39,14 @@ void forth_step (Forth f) {
         #undef X
         default: instrNOOP(f);break;
     }
+    //printf("data: %d, call: %d\n",dstack_size(f->data),cstack_size(f->call));
 }
 
 void forth_exit(Forth f) {
-    printf("result: %li\n",dstack_pop(f->data));
+    if(!dstack_isEmpty(f->data)) {
+        printf("result: %li\n",dstack_pop(f->data));
+    } else {
+        puts("nothing");
+    }
     f->zombie = 1;
 }

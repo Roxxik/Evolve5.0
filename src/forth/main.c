@@ -5,15 +5,23 @@
 
 
 int main(void) {
-    Instruction seq[] = {
-        INSTR_NUM,0xFF,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-        INSTR_NUM,0xFF,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+    Instruction mainseq[] = {
+        INSTR_NUM,0x07,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+        INSTR_NUM,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+        INSTR_CALL,
+        INSTR_NUM,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+        INSTR_CALL,
+        INSTR_EXIT
+    };
+    Instruction twoseq[] = {
+        INSTR_DUP,
         INSTR_ADD,
         INSTR_EXIT
     };
-    Block main = block_new(seq);
-    block_print(main);
-    Code c = code_new(1,&main);
+    Block main = block_new(mainseq);
+    Block two = block_new(twoseq);
+    Block blocks[] = { main, two };
+    Code c = code_new(2,blocks);
     Forth f = forth_new(c);
     printf("executing\n");
     while(forth_running(f)) {

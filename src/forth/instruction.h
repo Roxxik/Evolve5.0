@@ -10,8 +10,10 @@
 #define INSTRUCTIONS \
     X(NOOP)\
     X(EXIT)\
+    X(CALL)\
     X(NUM)\
-    X(ADD)
+    X(ADD)\
+    X(DUP)
 
 
 //don't actually need this
