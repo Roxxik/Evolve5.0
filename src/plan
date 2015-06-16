@@ -1,3 +1,10 @@
+step 0:
+    write own forth definition check
+step 0.5:
+    write a forth lexer/parser
+    //skip this just write a printer all forth programs will be generated
+step 0.9:
+    write a forth interpreter without registers and a reduced instuction set
 step 1:
     write a forth interpreter
 step 2:
@@ -10,3 +17,12 @@ step n-1:
 
 step n:
     profit
+
+//TODO
+decide wich mutations to use
+
+//ideas:
+maybe add selfmodifiying capabilities
+    is a child getting the initial code of parent or the code at birth?
+adding gender
+adding multitasking within a cell
