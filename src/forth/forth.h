@@ -22,6 +22,8 @@ void forth_free(Forth f);
 
 int forth_running(Forth f);
 
+void forth_exec(Forth f, Instruction instr);
+
 void forth_step(Forth f);
 
 void forth_call(Forth f, codesize_t sub);

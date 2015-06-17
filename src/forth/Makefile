@@ -12,7 +12,7 @@ CC = clang
 #Comilerflags
 CFLAGS = -c -g -Wall -Wextra -Werror
 #Linkerflags
-LDFLAGS = -flto
+LDFLAGS = -lm -flto
 
 SOURCE = main.c block.c instruction.c builtins.c code.c forth.c cstack.c dstack.c
 OBJECTS =$(SOURCE:.c=.o)

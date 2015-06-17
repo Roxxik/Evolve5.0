@@ -9,19 +9,83 @@
 
 #define INSTRUCTIONS \
     X(NOOP)\
+    \
+    X(EXEC)\
+    \
     X(EXIT)\
     X(CALL)\
     X(IF)\
     X(IFELSE)\
     X(LOOP)\
+    X(CONDEXIT)\
+    X(CB)\
+    \
     X(NUM)\
+    \
     X(DUP)\
     X(POP)\
+    X(SWAP)\
+    X(OVER)\
+    X(ROT)\
+    X(TOR)\
+    X(CONDDUP)\
+    \
+    X(INC)\
+    X(DEC)\
+    X(INC2)\
+    X(DEC2)\
+    X(HALF)\
+    X(DOUBLE)\
+    X(ABS)\
+    X(SQRT)\
+    X(ZERO)\
+    X(NEGATE)\
+    X(NOT)\
+    X(INVERT)\
+    X(SGN)\
+    \
     X(ADD)\
     X(SUB)\
     X(MUL)\
     X(DIV)\
     X(MOD)\
+    X(DIVMOD)\
+    X(EQ)\
+    X(NE)\
+    X(LT)\
+    X(GT)\
+    X(LE)\
+    X(GE)\
+    X(OR)\
+    X(AND)\
+    X(XOR)\
+    X(MIN)\
+    X(MAX)\
+    \
+    X(RN)\
+    X(R0)\
+    X(R1)\
+    X(R2)\
+    X(R3)\
+    X(R4)\
+    X(R5)\
+    X(R6)\
+    X(R7)\
+    X(R8)\
+    X(R9)\
+    X(SETRN)\
+    X(SETR0)\
+    X(SETR1)\
+    X(SETR2)\
+    X(SETR3)\
+    X(SETR4)\
+    X(SETR5)\
+    X(SETR6)\
+    X(SETR7)\
+    X(SETR8)\
+    X(SETR9)\
+    \
+    X(INSTRUCTION_MAX)
 
 
 //don't actually need this
@@ -32,6 +96,20 @@ enum InstrCode {
  
     #undef X
 };
+
+#define REGISTER_MAX 10
+
+#define REGISTERS \
+    X(0)\
+    X(1)\
+    X(2)\
+    X(3)\
+    X(4)\
+    X(5)\
+    X(6)\
+    X(7)\
+    X(8)\
+    X(9)\
 
 typedef uint8_t Instruction;
 typedef int64_t Number;

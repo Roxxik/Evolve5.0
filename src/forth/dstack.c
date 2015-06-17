@@ -1,8 +1,15 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <assert.h>
 
 
 #include "dstack.h"
+
+void dstack_print(DStack s) {
+    for(int size = dstack_size(s) - 1; size >= 0; size--) {
+        printf("d: %li\n",s->stack[size]);
+    }
+}
 
 DStack dstack_new(dstacksize_t initialsize) {
     DStack s;
@@ -37,6 +44,11 @@ dstacksize_t dstack_maxSize(DStack s) {
 void dstack_push(DStack s, Number n) {
     assert (!dstack_isFull(s));
     s->stack[s->size++] = n;
+}
+
+Number dstack_peek(DStack s) {
+    assert(!dstack_isEmpty(s));
+    return s->stack[s->size-1];
 }
 
 Number dstack_pop(DStack s) {

@@ -14,6 +14,8 @@ typedef struct CStack{
 } *CStack;
 
 
+void cstack_print(CStack s);
+
 CStack cstack_new(cstacksize_t initialsize);
 void cstack_free(CStack s);
 

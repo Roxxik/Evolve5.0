@@ -1,8 +1,16 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <assert.h>
 
 
 #include "cstack.h"
+
+
+void cstack_print(CStack s) {
+    for(int size = cstack_size(s) - 1; size >= 0; size--) {
+        printf("c: %p\n",s->stack[size]);
+    }
+}
 
 CStack cstack_new(cstacksize_t initialsize) {
     CStack s;
