@@ -8,7 +8,8 @@ step 0.9:
 step 1:
     write a forth interpreter
 step 2:
-    ...
+    write a simple environemnt and some simple environment calls
+    2.1:build a simple environment(ala array with pointers to cells and cells)
 
 
 
@@ -26,3 +27,6 @@ maybe add selfmodifiying capabilities
     is a child getting the initial code of parent or the code at birth?
 adding gender
 adding multitasking within a cell
+add more reflection
+    get stacksizes
+more bitwise operations(shifting)//first define what shift does exactly(c standard is pretty vague here)

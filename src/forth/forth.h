@@ -5,12 +5,14 @@
 #include "code.h"
 #include "cstack.h"
 #include "dstack.h"
+#include "cell.h"
 
 typedef struct Forth {
     Number registers[10];
     DStack data;
     CStack call;
     Code code;
+    Cell cell;
     Instruction *ip;
     codesize_t cb;
     int zombie;

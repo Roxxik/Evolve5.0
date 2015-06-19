@@ -58,9 +58,20 @@
     X(GE)\
     X(OR)\
     X(AND)\
+    X(LOR)\
+    X(LAND)\
     X(XOR)\
     X(MIN)\
     X(MAX)\
+    X(SHR)\
+    X(SHL)\
+    X(RTR)\
+    X(RTL)\
+    \
+    X(PACK2)\
+    X(UNPACK2)\
+    X(PACK4)\
+    X(UNPACK4)\
     \
     X(RN)\
     X(R0)\
@@ -113,6 +124,7 @@ enum InstrCode {
 
 typedef uint8_t Instruction;
 typedef int64_t Number;
+typedef uint64_t UNumber;
 
 typedef uint16_t seqsize_t;
 

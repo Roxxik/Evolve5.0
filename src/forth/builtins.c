@@ -1,3 +1,4 @@
+#include <limits.h>
 #include <assert.h>
 #include <math.h>
 
@@ -6,6 +7,114 @@
 #include "dstack.h"
 
 #include "builtins.h"
+
+#define NUMBER_BIT (Number)sizeof(Number) * CHAR_BIT
+
+Number rotr(Number value, Number shift);
+
+//pre: shift > 0
+Number rotl(Number value, Number shift) {
+    if(shift < 0) {
+        return rotr(value, -shift);
+    }
+    shift %= sizeof(value) * CHAR_BIT;
+    return (value << shift) | (value >> (sizeof(value) * CHAR_BIT - shift));
+}
+
+//pre: shift > 0
+Number rotr(Number value, Number shift) {
+    if(shift < 0) {
+        return rotl(value, -shift);
+    }
+    shift %= sizeof(value) * CHAR_BIT;
+    return (value >> shift) | (value << (sizeof(value) * CHAR_BIT - shift));
+}
+
+//logical negative shifts put in 1s instead of 0s
+//ignoring the arithmetical shift for now
+Number shiftl(Number value, Number shift) {
+    Number zero = 0;
+    if(shift >= 0) {
+        if(shift < NUMBER_BIT) {
+            return value << shift;
+        } else {
+            return zero;
+        }
+    } else {
+        shift = -shift;
+        if(shift < NUMBER_BIT) {
+            return ~((~value) << shift);
+        } else {
+            return ~zero;
+        }
+    }
+}
+
+Number shiftr(Number value, Number shift) {
+    Number zero = 0;
+    union {
+        struct { Number i; };
+        struct { UNumber u; };
+    } v = { .i = value };
+    if(shift >= 0) {
+        if(shift < NUMBER_BIT) {
+            v.u >>= shift;
+            return v.i;
+        } else {
+            return zero;
+        }
+    } else {
+        shift = -shift;
+        if(shift < NUMBER_BIT) {
+            v.u = ~((~v.u) >> shift);
+            return v.i;
+        } else {
+            return ~zero;
+        }
+    }    
+}
+
+#define UNARYOPS \
+    X(INC,    n + 1)\
+    X(DEC,    n - 1)\
+    X(INC2,   n + 2)\
+    X(DEC2,   n - 2)\
+    X(HALF,   n / 2)\
+    X(DOUBLE, n * 2)\
+    X(ABS,    n > 0 ? n : -n)\
+    X(SQRT,   sqrt(n))\
+    X(ZERO,   n == 0)\
+    X(NEGATE, -n)\
+    X(NOT,    !n)\
+    X(INVERT, ~n)\
+    X(SGN,    (n>0) - (n<0))
+
+#define BINARYOPS \
+    X(ADD,  n1 +  n2)\
+    X(SUB,  n1 -  n2)\
+    X(MUL,  n1 *  n2)\
+    X(EQ,   n1 == n2)\
+    X(NE,   n1 != n2)\
+    X(LT,   n1 <  n2)\
+    X(GT,   n1 >  n2)\
+    X(LE,   n1 <= n2)\
+    X(GE,   n1 >= n2)\
+    X(OR,   n1 |  n2)\
+    X(AND,  n1 &  n2)\
+    X(XOR,  n1 ^  n2)\
+    X(LAND, n1 && n2)\
+    X(LOR,  n1 || n2)\
+    X(MIN,  n1 < n2 ? n1 : n2)\
+    X(MAX,  n1 > n2 ? n1 : n2)\
+    X(SHL,  shiftl(n1, n2))\
+    X(SHR,  shiftr(n1, n2))\
+    X(RTL,  rotl(n1, n2))\
+    X(RTR,  rotr(n1, n2))
+    
+#define BINARYOPS_N2_NOTZERO \
+    X(DIV, n1 / n2)\
+    X(MOD, n1 % n2)
+
 
 //keeping it safe, not an actual instruction,
 //just defined to determine the number of instructions
@@ -33,6 +142,7 @@ void instrEXIT(Forth f) {
     if (cstack_size(f->call) >= 1) {
         f->ip = cstack_pop(f->call);
     } else {
+        //kill this thing if it finished main
         forth_exit(f);
     }
 }
@@ -97,7 +207,7 @@ void instrCB(Forth f) {
     dstack_push(f->data, f->cb);
 }
 
-//number
+//push number
 void instrNUM(Forth f) {
     dstack_push(f->data,*(Number*)(f->ip+1));
     f->ip = seq_next(f->ip);
@@ -182,162 +292,51 @@ void instrTOR(Forth f) {//ROT backwards
 //arithmetics
 
 //unary
-void instrINC(Forth f) {
-    if(dstack_size(f->data) >= 1) {
-        Number n = dstack_pop(f->data);
-        dstack_push(f->data, n + 1);
-    }
-    f->ip = seq_next(f->ip);
-}
+#define X(name,op) \
+void instr##name(Forth f) {\
+    if(dstack_size(f->data) >= 1) {\
+        Number n = dstack_pop(f->data);\
+        dstack_push(f->data, op);\
+    }\
+    f->ip = seq_next(f->ip);\
+}\
 
-void instrDEC(Forth f) {
-    if(dstack_size(f->data) >= 1) {
-        Number n = dstack_pop(f->data);
-        dstack_push(f->data, n - 1);
-    }
-    f->ip = seq_next(f->ip);
-}
+UNARYOPS
 
-void instrINC2(Forth f) {
-    if(dstack_size(f->data) >= 1) {
-        Number n = dstack_pop(f->data);
-        dstack_push(f->data, n + 2);
-    }
-    f->ip = seq_next(f->ip);
-}
-
-void instrDEC2(Forth f) {
-    if(dstack_size(f->data) >= 1) {
-        Number n = dstack_pop(f->data);
-        dstack_push(f->data, n - 2);
-    }
-    f->ip = seq_next(f->ip);
-}
-
-void instrHALF(Forth f) {
-    if(dstack_size(f->data) >= 1) {
-        Number n = dstack_pop(f->data);
-        dstack_push(f->data, n / 2);
-    }
-    f->ip = seq_next(f->ip);
-}
-
-void instrDOUBLE(Forth f) {
-    if(dstack_size(f->data) >= 1) {
-        Number n = dstack_pop(f->data);
-        dstack_push(f->data, n * 2);
-    }
-    f->ip = seq_next(f->ip);
-}
-
-void instrABS(Forth f) {
-    if(dstack_size(f->data) >= 1) {
-        Number n = dstack_pop(f->data);
-        dstack_push(f->data, n > 0 ? n : -n);
-    }
-    f->ip = seq_next(f->ip);
-}
-
-void instrSQRT(Forth f) {
-    if(dstack_size(f->data) >= 1) {
-        Number n = dstack_pop(f->data);
-        if(n >= 0) {
-            dstack_push(f->data, sqrt(n));
-        }
-    }
-    f->ip = seq_next(f->ip);
-}
-
-void instrZERO(Forth f) {
-    if(dstack_size(f->data) >= 1) {
-        Number n = dstack_pop(f->data);
-        dstack_push(f->data, n == 0);
-    }
-    f->ip = seq_next(f->ip);
-}
-
-void instrNEGATE(Forth f) {
-    if(dstack_size(f->data) >= 1) {
-        Number n = dstack_pop(f->data);
-        dstack_push(f->data, -n);
-    }
-    f->ip = seq_next(f->ip);
-}
-
-void instrNOT(Forth f) {
-    if(dstack_size(f->data) >= 1) {
-        Number n = dstack_pop(f->data);
-        dstack_push(f->data, !n);
-    }
-    f->ip = seq_next(f->ip);
-}
-
-void instrINVERT(Forth f) {
-    if(dstack_size(f->data) >= 1) {
-        Number n = dstack_pop(f->data);
-        dstack_push(f->data, ~n);
-    }
-    f->ip = seq_next(f->ip);
-}
-
-void instrSGN(Forth f) {
-    if(dstack_size(f->data) >= 1) {
-        Number n = dstack_pop(f->data);
-        dstack_push(f->data, (n>0) - (n<0));
-    }
-    f->ip = seq_next(f->ip);
-}
+#undef X
 
 //binary
-void instrADD(Forth f) {
-    if (dstack_size(f->data) >= 2) {
-        Number n2 = dstack_pop(f->data);
-        Number n1 = dstack_pop(f->data);
-        dstack_push(f->data, n1 + n2);
-    }
-    f->ip = seq_next(f->ip);
-}
+#define X(name,op) \
+void instr##name(Forth f) {\
+    if (dstack_size(f->data) >= 2) {\
+        Number n2 = dstack_pop(f->data);\
+        Number n1 = dstack_pop(f->data);\
+        dstack_push(f->data, op);\
+    }\
+    f->ip = seq_next(f->ip);\
+}\
 
-void instrSUB(Forth f) {
-    if (dstack_size(f->data) >= 2) {
-        Number n2 = dstack_pop(f->data);
-        Number n1 = dstack_pop(f->data);
-        dstack_push(f->data, n1 - n2);
-    }
-    f->ip = seq_next(f->ip);
-}
+BINARYOPS
 
-void instrMUL(Forth f) {
-    if (dstack_size(f->data) >= 2) {
-        Number n2 = dstack_pop(f->data);
-        Number n1 = dstack_pop(f->data);
-        dstack_push(f->data, n1 * n2);
-    }
-    f->ip = seq_next(f->ip);
-}
+#undef X
 
-void instrDIV(Forth f) {
-    if (dstack_size(f->data) >= 2) {
-        Number n2 = dstack_pop(f->data);
-        Number n1 = dstack_pop(f->data);
-        if(n2 != 0) {
-            dstack_push(f->data, n1 / n2);
-        }
-    }
-    f->ip = seq_next(f->ip);
-}
+#define X(name,op) \
+void instr##name(Forth f) {\
+    if (dstack_size(f->data) >= 2) {\
+        Number n2 = dstack_pop(f->data);\
+        Number n1 = dstack_pop(f->data);\
+        if(n2 != 0) {\
+            dstack_push(f->data, op);\
+        }\
+    }\
+    f->ip = seq_next(f->ip);\
+}\
 
-void instrMOD(Forth f) {
-    if (dstack_size(f->data) >= 2) {
-        Number n2 = dstack_pop(f->data);
-        Number n1 = dstack_pop(f->data);
-        if(n2 != 0) {
-            dstack_push(f->data, n1 % n2);
-        }
-    }
-    f->ip = seq_next(f->ip);
-}
+BINARYOPS_N2_NOTZERO
 
+#undef X
+
+//divmod has a special place, cause it pushes two things back
 void instrDIVMOD(Forth f) {
     if (dstack_size(f->data) >= 2) {
         Number n2 = dstack_pop(f->data);
@@ -350,104 +349,6 @@ void instrDIVMOD(Forth f) {
     f->ip = seq_next(f->ip);
 }
 
-void instrEQ(Forth f) {
-    if (dstack_size(f->data) >= 2) {
-        Number n2 = dstack_pop(f->data);
-        Number n1 = dstack_pop(f->data);
-        dstack_push(f->data, n1 == n2);
-    }
-    f->ip = seq_next(f->ip);
-}
-
-void instrNE(Forth f) {
-    if (dstack_size(f->data) >= 2) {
-        Number n2 = dstack_pop(f->data);
-        Number n1 = dstack_pop(f->data);
-        dstack_push(f->data, n1 != n2);
-    }
-    f->ip = seq_next(f->ip);
-}
-
-void instrLT(Forth f) {
-    if (dstack_size(f->data) >= 2) {
-        Number n2 = dstack_pop(f->data);
-        Number n1 = dstack_pop(f->data);
-        dstack_push(f->data, n1 < n2);
-    }
-    f->ip = seq_next(f->ip);
-}
-
-void instrGT(Forth f) {
-    if (dstack_size(f->data) >= 2) {
-        Number n2 = dstack_pop(f->data);
-        Number n1 = dstack_pop(f->data);
-        dstack_push(f->data, n1 > n2);
-    }
-    f->ip = seq_next(f->ip);
-}
-
-void instrLE(Forth f) {
-    if (dstack_size(f->data) >= 2) {
-        Number n2 = dstack_pop(f->data);
-        Number n1 = dstack_pop(f->data);
-        dstack_push(f->data, n1 <= n2);
-    }
-    f->ip = seq_next(f->ip);
-}
-
-void instrGE(Forth f) {
-    if (dstack_size(f->data) >= 2) {
-        Number n2 = dstack_pop(f->data);
-        Number n1 = dstack_pop(f->data);
-        dstack_push(f->data, n1 >= n2);
-    }
-    f->ip = seq_next(f->ip);
-}
-
-void instrOR(Forth f) {
-    if (dstack_size(f->data) >= 2) {
-        Number n2 = dstack_pop(f->data);
-        Number n1 = dstack_pop(f->data);
-        dstack_push(f->data, n1 | n2);
-    }
-    f->ip = seq_next(f->ip);
-}
-
-void instrAND(Forth f) {
-    if (dstack_size(f->data) >= 2) {
-        Number n2 = dstack_pop(f->data);
-        Number n1 = dstack_pop(f->data);
-        dstack_push(f->data, n1 & n2);
-    }
-    f->ip = seq_next(f->ip);
-}
-
-void instrXOR(Forth f) {
-    if (dstack_size(f->data) >= 2) {
-        Number n2 = dstack_pop(f->data);
-        Number n1 = dstack_pop(f->data);
-        dstack_push(f->data, n1 ^ n2);
-    }
-    f->ip = seq_next(f->ip);
-}
-
-void instrMIN(Forth f) {
-    if (dstack_size(f->data) >= 2) {
-        Number n2 = dstack_pop(f->data);
-        Number n1 = dstack_pop(f->data);
-        dstack_push(f->data, n1 < n2 ? n1 : n2);
-    }
-    f->ip = seq_next(f->ip);
-}
-
-void instrMAX(Forth f) {
-    if (dstack_size(f->data) >= 2) {
-        Number n2 = dstack_pop(f->data);
-        Number n1 = dstack_pop(f->data);
-        dstack_push(f->data, n1 > n2 ? n1 : n2);
-    }
-    f->ip = seq_next(f->ip);
-}
 
 //packing
 void instrPACK2(Forth f) {
@@ -457,7 +358,7 @@ void instrPACK2(Forth f) {
         union {
             struct { Number n; };
             struct { int32_t a, b; };
-        } p = { .a = (int32_t)n1, .b = (int32_t)n2 };
+        } p = { .a = n1, .b = n2 };
         dstack_push(f->data, p.n);
     }
     f->ip = seq_next(f->ip);
@@ -546,3 +447,8 @@ void instrSETR##r(Forth f) {\
 REGISTERS
 
 #undef X
+
+//environmental stuff
+void instMOVE(Forth f) {
+    f->ip = seq_next(f->ip);
+}
