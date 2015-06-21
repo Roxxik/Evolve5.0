@@ -14,7 +14,7 @@ CFLAGS = -c -g -Wall -Wextra -Werror
 #Linkerflags
 LDFLAGS = -lm -flto
 
-SOURCE = main.c block.c instruction.c builtins.c code.c forth.c cstack.c dstack.c cell.c env.c
+SOURCE = main.c block.c instruction.c builtins.c code.c forth.c cstack.c dstack.c env.c
 OBJECTS =$(SOURCE:.c=.o)
 
 #Target name

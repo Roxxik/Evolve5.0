@@ -7,10 +7,15 @@
 
 typedef uint16_t cstacksize_t;
 
+typedef struct call_t {
+    Instruction *ip;
+    Number cb;
+} call_t;
+
 typedef struct CStack{
     cstacksize_t maxSize;
     cstacksize_t size;
-    Instruction **stack;
+    call_t *stack;
 } *CStack;
 
 
@@ -24,8 +29,8 @@ int cstack_isFull(CStack s);
 cstacksize_t cstack_size(CStack s);
 cstacksize_t cstack_maxSize(CStack s);
 
-void cstack_push(CStack s, Instruction *i);
-Instruction *cstack_pop(CStack s);
+void cstack_push(CStack s, Instruction *i, Number cb);
+call_t cstack_pop(CStack s);
 
 
 #endif /* CSTACK_H */

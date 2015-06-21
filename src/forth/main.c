@@ -1,9 +1,11 @@
 #include <stdio.h>
 
-#include "forth.h"
-#include "instruction.h"
+#include "env.h"
 
 int main(void) {
+    env_init();
+    env_print();
+    /*
     Instruction mainseq[] = {
         INSTR_NUM,0x08,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
         INSTR_NUM,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -34,5 +36,5 @@ int main(void) {
     while(forth_running(f)) {
         forth_step(f);
     }
-    forth_free(f);
+    forth_free(f);*/
 }

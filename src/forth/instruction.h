@@ -38,11 +38,14 @@
     X(DOUBLE)\
     X(ABS)\
     X(SQRT)\
+    X(CBRT)\
     X(ZERO)\
     X(NEGATE)\
     X(NOT)\
     X(INVERT)\
     X(SGN)\
+    X(SQUARE)\
+    X(CUBE)\
     \
     X(ADD)\
     X(SUB)\

@@ -7,12 +7,21 @@
 
 #include "env.h"
 
-#define FIELDWIDTH UINT8_MAX
-#define FIELDHEIGHT UINT8_MAX
+#define FIELDWIDTH 10
+#define FIELDHEIGHT 10
 
 
 identifier_t nextID;
-Cell **Field;
+Forth **Field;
+Forth Organisms;
+
+void env_spawn() {
+    
+}
+
+void env_step(void) {
+    
+}
 
 
 void env_init(void) {
@@ -27,14 +36,14 @@ identifier_t env_newID(void) {
     return nextID++;
 }
 
-void env_move(Forth f, Cell cell, offset_t x, offset_t y) {
+void env_move(Forth f, offset_t x, offset_t y) {
     assert(x >= -1 && x <= 1);
     assert(y >= -1 && y <= 1);
-    if(Field[cell->y+y][cell->x+x] == NULL) {
-        Field[cell->y+y][cell->x+x] = cell;
-        Field[cell->y][cell->x] = NULL;
-        cell->x = cell->x + x;
-        cell->y = cell->y + y;
+    if(Field[f->y+y][f->x+x] == NULL) {
+        Field[f->y+y][f->x+x] = f;
+        Field[f->y][f->x] = NULL;
+        f->x = f->x + x;
+        f->y = f->y + y;
         dstack_push(f->data, 1);
     } else {
         dstack_push(f->data, 0);
@@ -58,5 +67,7 @@ void env_print(void) {
                 putchar(' ');
             }
         }
+        puts("|");
     }
+    putchar('\n');
 }

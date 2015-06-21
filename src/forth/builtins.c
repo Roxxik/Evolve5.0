@@ -83,11 +83,15 @@ Number shiftr(Number value, Number shift) {
     X(DOUBLE, n * 2)\
     X(ABS,    n > 0 ? n : -n)\
     X(SQRT,   sqrt(n))\
+    X(CBRT,   cbrt(n))\
     X(ZERO,   n == 0)\
     X(NEGATE, -n)\
     X(NOT,    !n)\
     X(INVERT, ~n)\
-    X(SGN,    (n>0) - (n<0))
+    X(SGN,    (n>0) - (n<0))\
+    X(SQUARE, n * n)\
+    X(CUBE,   n * n * n)
+
 
 #define BINARYOPS \
     X(ADD,  n1 +  n2)\
@@ -140,7 +144,9 @@ void instrEXEC(Forth f) {
 //Flow control
 void instrEXIT(Forth f) {
     if (cstack_size(f->call) >= 1) {
-        f->ip = cstack_pop(f->call);
+        call_t call = cstack_pop(f->call);
+        f->ip = call.ip;
+        f->cb = call.cb;
     } else {
         //kill this thing if it finished main
         forth_exit(f);
