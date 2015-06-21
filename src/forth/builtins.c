@@ -5,6 +5,7 @@
 #include "forth.h"
 #include "cstack.h"
 #include "dstack.h"
+#include "env.h"
 
 #include "builtins.h"
 
@@ -455,6 +456,9 @@ REGISTERS
 #undef X
 
 //environmental stuff
-void instMOVE(Forth f) {
+void instrMOVE(Forth f) {
+    Number y = dstack_pop(f->data);
+    Number x = dstack_pop(f->data);
+    env_move(f,x,y);
     f->ip = seq_next(f->ip);
 }

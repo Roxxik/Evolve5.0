@@ -2,18 +2,19 @@
 #define ENV_H
 
 #include "forth.h"
-#include "cell.h"
 #include "types.h"
 
 void env_init(void);
 
 identifier_t env_newID(void);
 
-void env_spawn(Forth f);
+void env_new(Forth f);
+
+void env_spawn(void);
 
 void env_step(void);
 
-void env_move(Forth f, offset_t x, offset_t y);
+void env_move(Forth f, Number x, Number y);
 /*
 void env_eat(Forth f, Cell cell, offset_t x,y);
 

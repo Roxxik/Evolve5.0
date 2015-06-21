@@ -4,7 +4,12 @@
 
 int main(void) {
     env_init();
+    env_spawn();
     env_print();
+    for(int i = 0; i<30;i++) {
+        env_step();
+        env_print();
+    }
     /*
     Instruction mainseq[] = {
         INSTR_NUM,0x08,0x00,0x00,0x00,0x00,0x00,0x00,0x00,

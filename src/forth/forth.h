@@ -7,7 +7,6 @@
 #include "code.h"
 #include "cstack.h"
 #include "dstack.h"
-#include "cell.h"
 
 typedef uint8_t identifier_t;
 typedef uint8_t generation_t;

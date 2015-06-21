@@ -99,6 +99,8 @@
     X(SETR8)\
     X(SETR9)\
     \
+    X(MOVE)\
+    \
     X(INSTRUCTION_MAX)
 
 
