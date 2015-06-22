@@ -18,9 +18,6 @@ seqsize_t seq_getSize(Instruction *seq) {
 }
 
 Instruction *seq_next(Instruction *current) {
-    if(*current == INSTR_EXIT) {
-        return current;
-    }
     if(*current == INSTR_NUM) {
         current += NUMBERSIZE;
     }
@@ -30,11 +27,11 @@ Instruction *seq_next(Instruction *current) {
 
 void instr_print(Instruction i) {
     switch(i) {
-        #define X(instr) case INSTR_##instr: printf("%d: %s\n", INSTR_##instr, #instr);break;
+        #define X(instr) case INSTR_##instr: printf("%s(%d)\n", #instr, INSTR_##instr);break;
         
         INSTRUCTIONS
         
         #undef X
-        default: printf("%d: %s\n", i, "NOOP");
+        default: printf("%s(%d)\n", "NOOP", i);
     }
 }

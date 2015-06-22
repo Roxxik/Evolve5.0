@@ -78,8 +78,8 @@ Number shiftr(Number value, Number shift) {
 #define UNARYOPS \
     X(INC,    n + 1)\
     X(DEC,    n - 1)\
-    X(INC2,   n + 2)\
-    X(DEC2,   n - 2)\
+    X(INCTWO,   n + 2)\
+    X(DECTWO,   n - 2)\
     X(HALF,   n / 2)\
     X(DOUBLE, n * 2)\
     X(ABS,    n > 0 ? n : -n)\

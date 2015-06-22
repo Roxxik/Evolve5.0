@@ -32,8 +32,8 @@
     \
     X(INC)\
     X(DEC)\
-    X(INC2)\
-    X(DEC2)\
+    X(INCTWO)\
+    X(DECTWO)\
     X(HALF)\
     X(DOUBLE)\
     X(ABS)\
