@@ -4,12 +4,13 @@
 
 #include "builtins.h"
 #include "env.h"
+#include "util.h"
 
 #include "forth.h"
 
 Forth forth_new(Code c, identifier_t parentID, generation_t parentGen, step_t step, coord_t x, coord_t y, energy_t nrg) {
     Forth f;
-    if((f = malloc(sizeof(*f))) == NULL) { exit(1); }
+    MALLOC(f, sizeof(*f));
 
     f->id = env_newID();
     f->parentID = parentID;

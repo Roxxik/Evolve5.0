@@ -3,12 +3,13 @@
 #include <assert.h>
 
 #include "block.h"
+#include "util.h"
 
 #include "code.h"
 
 Code code_new(codesize_t size, Block *blocks) {
     Code c;
-    if ((c = malloc(sizeof(*c))) == NULL) { exit(1); };
+    MALLOC(c,sizeof(*c));
     c->size = size;
     c->blocks = blocks;
     return c;
@@ -41,7 +42,7 @@ void code_print(Code c) {
 Code code_generate(void) {
     codesize_t nBlocks = 1 + (random() % 10);
     Block *blocks;
-    if((blocks = malloc(nBlocks * sizeof(*blocks))) == NULL) { exit(1); }
+    MALLOC(blocks,nBlocks * sizeof(*blocks));
     for(codesize_t i = 0; i < nBlocks; i++) {
         blocks[i] = block_generate();
     }

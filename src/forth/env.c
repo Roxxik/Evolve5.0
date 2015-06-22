@@ -5,6 +5,7 @@
 
 #include "instruction.h"
 #include "dstack.h"
+#include "util.h"
 
 #include "env.h"
 
@@ -36,7 +37,7 @@ step_t Step;
 
 void org_add(Forth f) {
     ForthList new;
-    if((new = malloc(sizeof(*new))) == NULL) { exit(1); }
+    MALLOC(new, sizeof(*new));
     new->next = Organisms;
     new->f = f;
     Organisms = new; 
@@ -98,7 +99,7 @@ void env_step(void) {
 
 void env_init(void) {
     nextID = 1;
-    if((Field = malloc(FIELDHEIGHT * sizeof(Forth**))) == NULL) { exit(1); }
+    MALLOC(Field,FIELDHEIGHT * sizeof(Forth**));
     for(coord_t i = 0; i < FIELDHEIGHT;i++) {
         if((Field[i] = calloc(FIELDWIDTH, sizeof(Forth*))) == NULL) { exit(1); }
     }

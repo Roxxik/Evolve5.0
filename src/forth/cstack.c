@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include "util.h"
 
 #include "cstack.h"
 
@@ -14,10 +15,10 @@ void cstack_print(CStack s) {
 
 CStack cstack_new(cstacksize_t initialsize) {
     CStack s;
-    if((s = malloc(sizeof(*s))) == NULL) { exit(1); }
+    MALLOC(s,sizeof(*s));
     s->maxSize = initialsize;
     s->size = 0;
-    if((s->stack = malloc(initialsize * sizeof(call_t))) == NULL) { exit(1); }
+    MALLOC(s->stack, initialsize * sizeof(call_t));
     return s;
 }
 

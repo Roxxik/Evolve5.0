@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include "util.h"
 
 #include "dstack.h"
 
@@ -13,10 +14,10 @@ void dstack_print(DStack s) {
 
 DStack dstack_new(dstacksize_t initialsize) {
     DStack s;
-    if((s = malloc(sizeof(*s))) == NULL) { exit(1); }
+    MALLOC(s, sizeof(*s));
     s->maxSize = initialsize;
     s->size = 0;
-    if((s->stack = malloc(initialsize * sizeof(Number))) == NULL) { exit(1); }
+    MALLOC(s->stack, initialsize * sizeof(Number));
     return s;
 }
 
