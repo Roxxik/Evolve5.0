@@ -3,20 +3,12 @@
 #include "env.h"
 
 int main(void) {
-    env_init();
-    Code c = code_generate();
-    code_print(c);
-    code_free(c);
-    env_fin();
-    /*env_init();
-    env_spawn();
-    env_print();
+    env_init(30);
     int c = 0;
-    while (c != 'x') {
-        env_spawn();
+    while(c != 'x') {
         env_step();
         env_print();
         c = getchar();
     }
-    env_fin();*/
+    env_fin();
 }

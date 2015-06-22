@@ -28,11 +28,11 @@ step n:
     profit
 
 //TODO
-improve code generation
 add seed
 add eat
 deleting organisms//needed if implementing decay or eat
 some sort of global energy to draw from
+improve code generation further
 add born in field to orgs
 do automatic expanding stacks
 add a skip instruction
@@ -51,6 +51,7 @@ add more reflection
 
 
 //DONE
+improve code generation
 add code_print
 generate code blocks
 more bitwise operations(shifting)//first define what shift does exactly(c standard is pretty vague here)

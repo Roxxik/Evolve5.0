@@ -25,9 +25,10 @@ Forth forth_new(Code c, identifier_t parentID, generation_t parentGen, step_t st
     
     REGISTERS
     
-    #undef X    
-    f->data = dstack_new(50);
-    f->call = cstack_new(50);
+    #undef X
+    
+    f->data = dstack_new(64);
+    f->call = cstack_new(64);
     f->code = c;
     f->ip = block_getInstrSeq(code_getBlock(c,0));
     f->cb = 0;
@@ -68,6 +69,9 @@ void forth_step (Forth f) {
     forth_exec(f,*f->ip);
     //printStacks(f);
     //printf("data: %d, call: %d\n",dstack_size(f->data),cstack_size(f->call));
+    if(cstack_size(f->call) >= 50 || dstack_size(f->data) >= 50) {
+        forth_exit(f);
+    }
 }
 
 void forth_call(Forth f, codesize_t sub) {
@@ -82,10 +86,5 @@ void forth_call(Forth f, codesize_t sub) {
 }
 
 void forth_exit(Forth f) {
-    if(!dstack_isEmpty(f->data)) {
-        printf("result: %li\n",dstack_pop(f->data));
-    } else {
-        puts("nothing");
-    }
     f->zombie = true;
 }

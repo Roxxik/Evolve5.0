@@ -34,6 +34,7 @@ identifier_t nextID;
 Forth **Field;
 ForthList Organisms;
 step_t Step;
+energy_t Energy;
 
 void org_add(Forth f) {
     ForthList new;
@@ -48,8 +49,9 @@ void env_new(Forth f) {
     if(Field[f->y][f->x] == NULL) {
         Field[f->y][f->x] = f;
         org_add(f);
+        Energy -= f->energy;
     } else {
-        puts("there is already someone");
+        //puts("there is already someone");
         //exit(1);
         //or recurse...
         forth_free(f);
@@ -61,17 +63,6 @@ void env_spawn(void) {
     coord_t x,y;
     x = random() % FIELDWIDTH;
     y = random() % FIELDHEIGHT;
-    /*static Instruction b1[] = {
-        INSTR_NUM,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-        INSTR_DUP,
-        INSTR_DUP,
-        INSTR_DEC,
-        INSTR_MOVE,
-        INSTR_POP,
-        INSTR_LOOP
-    };
-    static Block blocks[] = { b1 };
-    Code c = code_new(1,blocks);*/
     Code c = code_generate();
     Forth f = forth_new(
         c, //use the generated code
@@ -85,19 +76,50 @@ void env_spawn(void) {
     env_new(f);
 }
 
+void forthList_free(ForthList fs) {
+    Forth f = fs->f;
+    Energy += f->energy;
+    assert(f->x >= 0 && f->x < FIELDWIDTH);
+    assert(f->y >= 0 && f->y < FIELDHEIGHT);
+    Field[f->y][f->x] = NULL;
+    forth_free(f);
+    free(fs);
+}
+
+ForthList wreckZombies(ForthList list) {
+    while(list != NULL && !forth_running(list->f)) {
+        ForthList temp = list->next;
+        forthList_free(list);
+        list = temp;
+    }
+    ForthList fs = list;
+    while(fs != NULL) {
+        if(fs->next != NULL && !forth_running(fs->next->f)) {
+            ForthList temp = fs->next;
+            fs->next = temp->next;
+            forthList_free(temp);
+        } else {
+            fs = fs->next;
+        }
+    }
+    return list;
+}
 
 void env_step(void) {
+    Organisms = wreckZombies(Organisms);
     for(ForthList fs = Organisms; fs != NULL; fs = fs->next) {
-        if(forth_running(fs->f)) {
-            forth_step(fs->f);
-        }
+        forth_step(fs->f);
+    }
+    while(Energy > 0) {
+        env_spawn();
     }
     printf("step: %i\n",Step);
     Step++;
 }
 
 
-void env_init(void) {
+void env_init(energy_t nrg) {
+    assert(nrg <= FIELDHEIGHT * FIELDWIDTH);
     nextID = 1;
     MALLOC(Field,FIELDHEIGHT * sizeof(Forth**));
     for(coord_t i = 0; i < FIELDHEIGHT;i++) {
@@ -105,6 +127,7 @@ void env_init(void) {
     }
     Organisms = NULL;
     Step = 0;
+    Energy = nrg;
     srand(time(NULL));
 }
 

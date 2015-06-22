@@ -3,7 +3,7 @@
 
 #include "forth.h"
 
-void env_init(void);
+void env_init(energy_t nrg);
 
 void env_fin(void);
 

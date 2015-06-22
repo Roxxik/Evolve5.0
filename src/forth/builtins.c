@@ -125,7 +125,7 @@ Number shiftr(Number value, Number shift) {
 //just defined to determine the number of instructions
 
 void instrINSTRUCTION_MAX(Forth f __attribute__((unused))) {
-    assert(0);
+    f->ip = seq_next(f->ip);
 }
 
 void instrNOOP(Forth f) {
@@ -135,11 +135,8 @@ void instrNOOP(Forth f) {
 void instrEXEC(Forth f) {
     if (dstack_size(f->data) >= 1) {
         Number instr = dstack_pop(f->data);
-        if (instr >= 0 && instr < INSTR_INSTRUCTION_MAX) {
-            forth_exec(f,instr);
-        }
+        forth_exec(f,instr);
     }
-    f->ip = seq_next(f->ip);
 }
 
 //Flow control
@@ -416,7 +413,7 @@ void instrUNPACK4(Forth f) {
 void instrRN(Forth f) {
     if (dstack_size(f->data) >= 1) {
         Number n = dstack_pop(f->data);
-        if(n < REGISTER_MAX) {
+        if(n >= 0 && n < REGISTER_MAX) {
             dstack_push(f->data,f->registers[n]);
         }
     }
@@ -436,7 +433,7 @@ REGISTERS
 void instrSETRN(Forth f) {
     if (dstack_size(f->data) >= 2) {
         Number n = dstack_pop(f->data);
-        if(n < REGISTER_MAX) {
+        if(n >= 0 && n < REGISTER_MAX) {
             f->registers[n] = dstack_pop(f->data);;
         }
     }
@@ -457,8 +454,10 @@ REGISTERS
 
 //environmental stuff
 void instrMOVE(Forth f) {
-    Number y = dstack_pop(f->data);
-    Number x = dstack_pop(f->data);
-    env_move(f,x,y);
+    if (dstack_size(f->data) >= 2) {
+        Number y = dstack_pop(f->data);
+        Number x = dstack_pop(f->data);
+        env_move(f,x,y);
+    }
     f->ip = seq_next(f->ip);
 }
