@@ -2,7 +2,6 @@
 #define ENV_H
 
 #include "forth.h"
-#include "types.h"
 
 void env_init(void);
 

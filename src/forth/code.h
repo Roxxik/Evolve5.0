@@ -20,5 +20,8 @@ codesize_t code_getSize(Code c);
 
 Block code_getBlock(Code c, codesize_t index);
 
+void code_print(Code c);
+
+Code code_generate(void);
 
 #endif /* CODE_H */

@@ -60,7 +60,7 @@ void env_spawn(void) {
     coord_t x,y;
     x = random() % FIELDWIDTH;
     y = random() % FIELDHEIGHT;
-    static Instruction b1[] = {
+    /*static Instruction b1[] = {
         INSTR_NUM,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
         INSTR_DUP,
         INSTR_DUP,
@@ -70,7 +70,8 @@ void env_spawn(void) {
         INSTR_LOOP
     };
     static Block blocks[] = { b1 };
-    Code c = code_new(1,blocks);
+    Code c = code_new(1,blocks);*/
+    Code c = code_generate();
     Forth f = forth_new(
         c, //use the generated code
         0, //no one is parent of this one
@@ -160,7 +161,11 @@ void env_print(void) {
     for(coord_t x = 0; x < FIELDWIDTH; x++) {
         for(coord_t y = 0; y < FIELDHEIGHT; y++) {
             if(Field[y][x]) {
-                putchar('#');
+                if(forth_running(Field[y][x])) {
+                    putchar('#');
+                } else {
+                    putchar('-');
+                }
             } else {
                 putchar(' ');
             }

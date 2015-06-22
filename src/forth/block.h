@@ -5,6 +5,8 @@
 
 #include "instruction.h"
 
+typedef uint16_t blocksize_t;
+
 typedef Instruction *Block;
 //this might be replaced later to include a refcount and a mutex
 // -> do not assume by dereferencing a block you'll get a valid instruction sequence
@@ -22,5 +24,7 @@ Instruction *block_getInstrSeq(Block b);
  * just print the block, mostly for debugging purposes
  */
 void block_print(Block b);
+
+Block block_generate(void);
 
 #endif /* BLOCK_H */

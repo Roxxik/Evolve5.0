@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <stdio.h>
 
 #include "block.h"
@@ -7,8 +8,8 @@ Block block_new(Instruction *seq) {
     return seq;
 }
 
-void block_free(Block b __attribute__((unused))) {
-    //noop
+void block_free(Block b) {
+    free(b);
 }
 
 Instruction *block_getInstrSeq(Block b) {
@@ -28,4 +29,15 @@ void block_print(Block b) {
         }
     }
     instr_print(*i);
+}
+
+Block block_generate(void) {
+    blocksize_t nInstr = random() % 20;
+    Instruction *instr = NULL;
+    if((instr = malloc((nInstr + 1) * sizeof(*instr))) == NULL) { exit(1); }
+    for(blocksize_t i = 0; i < nInstr; i++) {
+        instr[i] = random() % INSTR_INSTRUCTION_MAX;
+    }
+    instr[nInstr] = INSTR_EXIT;
+    return block_new(instr);
 }
