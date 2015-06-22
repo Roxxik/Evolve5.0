@@ -10,24 +10,32 @@ step 1:
 step 2:
     write a simple environemnt and some simple environment calls
     2.1:build a simple environment(ala array with pointers to cells and cells)
-
-
+step 3:
+    add cell generation
+step 4:
+    add reproduction
+step 5:
+    add mutation
+step 6:
+    add competition (eating other cells)
 
 step n-1:
     ???
-
 step n:
     profit
 
 //TODO
-check for leaks
 generate code blocks
-deleting organisms
 add seed
 add eat
+deleting organisms//needed if implementing decay or eat
 some sort of global energy to draw from
+add born in field to orgs
+do automatic expanding stacks
 
 more efficient field
+
+adding rng-seed and prng
 
 decide wich mutations to use
 maybe add selfmodifiying capabilities
