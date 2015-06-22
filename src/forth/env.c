@@ -8,8 +8,16 @@
 
 #include "env.h"
 
-#define FIELDWIDTH 10
-#define FIELDHEIGHT 10
+//height = 2^POWHEIGHT
+//same for width
+#define POWWIDTH 4
+#define POWHEIGHT 4
+
+#define FIELDWIDTH (1 << POWWIDTH)
+#define FIELDHEIGHT (1 << POWHEIGHT)
+
+#define WIDTHMASK (FIELDWIDTH - 1)
+#define HEIGHTMASK (FIELDHEIGHT - 1)
 
 typedef struct ForthList {
     Forth f;
@@ -40,7 +48,10 @@ void env_new(Forth f) {
         Field[f->y][f->x] = f;
         org_add(f);
     } else {
-        exit(1);//or recurse...
+        puts("there is already someone");
+        //exit(1);
+        //or recurse...
+        forth_free(f);
     }
 }
 
@@ -50,18 +61,12 @@ void env_spawn(void) {
     x = random() % FIELDWIDTH;
     y = random() % FIELDHEIGHT;
     static Instruction b1[] = {
-        INSTR_NUM,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+        INSTR_NUM,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
         INSTR_DUP,
-        INSTR_DUP,
-        INSTR_DUP,
-        INSTR_INC,
-        INSTR_MOVE,
-        INSTR_POP,
         INSTR_DUP,
         INSTR_DEC,
         INSTR_MOVE,
         INSTR_POP,
-        INSTR_INC,
         INSTR_LOOP
     };
     static Block blocks[] = { b1 };
@@ -85,6 +90,7 @@ void env_step(void) {
             forth_step(fs->f);
         }
     }
+    printf("step: %i\n",Step);
     Step++;
 }
 
@@ -100,20 +106,42 @@ void env_init(void) {
     srand(time(NULL));
 }
 
+void env_fin(void) {
+    for(coord_t i = 0; i < FIELDHEIGHT;i++) {
+        free(Field[i]);
+    }
+    free(Field);
+    while(Organisms != NULL) {
+        ForthList temp = Organisms;
+        Organisms = temp->next;
+        forth_free(temp->f);
+        free(temp);
+    }
+}
+
 identifier_t env_newID(void) {
     return nextID++;
 }
 
+coord_t wrapX(coord_t x) {
+    return x & WIDTHMASK;
+}
+
+
+coord_t wrapY(coord_t y) {
+    return y & HEIGHTMASK;
+}
+
 void env_move(Forth f, Number x, Number y) {
-    offset_t nx = signum(x);
-    offset_t ny = signum(y);
-    assert(nx >= -1 && nx <= 1);
-    assert(ny >= -1 && ny <= 1);
-    if(Field[f->y+y][f->x+x] == NULL) {
-        Field[f->y+y][f->x+x] = f;
+    offset_t ox = signum(x);
+    offset_t oy = signum(y);
+    coord_t nx = wrapX(f->x + ox);
+    coord_t ny = wrapY(f->y + oy);
+    if(Field[ny][nx] == NULL) {
+        Field[ny][nx] = f;
         Field[f->y][f->x] = NULL;
-        f->x = f->x + x;
-        f->y = f->y + y;
+        f->x = nx;
+        f->y = ny;
         dstack_push(f->data, 1);
     } else {
         dstack_push(f->data, 0);

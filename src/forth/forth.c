@@ -63,7 +63,7 @@ void printStacks(Forth f) {
 
 void forth_step (Forth f) {
     assert (!f->zombie);
-    instr_print(*f->ip);
+    //instr_print(*f->ip);
     forth_exec(f,*f->ip);
     //printStacks(f);
     //printf("data: %d, call: %d\n",dstack_size(f->data),cstack_size(f->call));

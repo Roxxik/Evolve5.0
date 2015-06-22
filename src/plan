@@ -20,13 +20,23 @@ step n:
     profit
 
 //TODO
-decide wich mutations to use
+check for leaks
+generate code blocks
+deleting organisms
+add seed
+add eat
+some sort of global energy to draw from
 
-//ideas:
+more efficient field
+
+decide wich mutations to use
 maybe add selfmodifiying capabilities
     is a child getting the initial code of parent or the code at birth?
 adding gender
 adding multitasking within a cell
 add more reflection
     get stacksizes
+
+
+//DONE
 more bitwise operations(shifting)//first define what shift does exactly(c standard is pretty vague here)

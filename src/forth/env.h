@@ -6,6 +6,8 @@
 
 void env_init(void);
 
+void env_fin(void);
+
 identifier_t env_newID(void);
 
 void env_new(Forth f);
