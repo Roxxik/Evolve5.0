@@ -11,8 +11,8 @@
 
 //height = 2^POWHEIGHT
 //same for width
-#define POWWIDTH 4
-#define POWHEIGHT 4
+#define POWWIDTH 5
+#define POWHEIGHT 6
 
 #define FIELDWIDTH (1 << POWWIDTH)
 #define FIELDHEIGHT (1 << POWHEIGHT)
@@ -108,12 +108,24 @@ ForthList wreckZombies(ForthList list) {
 void env_step(void) {
     Organisms = wreckZombies(Organisms);
     for(ForthList fs = Organisms; fs != NULL; fs = fs->next) {
-        forth_step(fs->f);
+        if(forth_running(fs->f)) {
+            forth_step(fs->f);
+        }
     }
-    while(Energy > 0) {
+    if(Energy > 0) {
         env_spawn();
+    } else {        
+        coord_t x,y;
+        x = random() % FIELDWIDTH;
+        y = random() % FIELDHEIGHT;
+        if(Field[y][x] != NULL) {
+            forth_exit(Field[y][x]);
+        }
     }
-    printf("step: %i\n",Step);
+    if((Step & ~(~0 << 10)) == 0) {
+        printf("step: %i\n",Step);
+        env_print();
+    }
     Step++;
 }
 
@@ -172,26 +184,51 @@ void env_move(Forth f, Number x, Number y) {
         dstack_push(f->data, 0);
     }
 }
-/*
-void env_eat(Forth f, Cell cell, offset_t x,y) {
-    
-}*/
-/*
-void env_seed(Forth f, Cell cell, offset_t x,y) {
-    
-}*/
+
+void env_eat(Forth f, Number x, Number y) {
+    offset_t ox = signum(x);
+    offset_t oy = signum(y);
+    coord_t nx = wrapX(f->x + ox);
+    coord_t ny = wrapY(f->y + oy);
+    if(Field[ny][nx] != NULL) {
+        Forth v = Field[ny][nx];
+        forth_exit(v);
+        energy_t nrg = v->energy;
+        v->energy = 0;
+        f->energy += nrg;
+        dstack_push(f->data, nrg);
+    } else {
+        dstack_push(f->data, 0);
+    }
+}
+
+
+void env_seed(Forth f, Number x, Number y, Number nrg) {
+    offset_t ox = signum(x);
+    offset_t oy = signum(y);
+    coord_t nx = wrapX(f->x + ox);
+    coord_t ny = wrapY(f->y + oy);
+    if(nrg > 0 && Field[ny][nx] == NULL) {
+        
+        
+        
+        dstack_push(f->data, 1);
+    } else {
+        dstack_push(f->data, 0);
+    }
+}
 
 void env_print(void) {
     for(coord_t x = 0; x < FIELDWIDTH; x++) {
         for(coord_t y = 0; y < FIELDHEIGHT; y++) {
             if(Field[y][x]) {
                 if(forth_running(Field[y][x])) {
-                    putchar('#');
+                    printf("%3d",Field[y][x]->energy);
                 } else {
-                    putchar('-');
+                    printf("  X");
                 }
             } else {
-                putchar(' ');
+                printf("   ");
             }
         }
         puts("|");

@@ -100,6 +100,8 @@
     X(SETR9)\
     \
     X(MOVE)\
+    X(EAT)\
+    X(SEED)\
     \
     X(INSTRUCTION_MAX)
 

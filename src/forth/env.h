@@ -16,11 +16,11 @@ void env_spawn(void);
 void env_step(void);
 
 void env_move(Forth f, Number x, Number y);
-/*
-void env_eat(Forth f, Cell cell, offset_t x,y);
 
-void env_seed(Forth f, Cell cell, offset_t x,y);
-*/
+void env_eat(Forth f, Number x, Number y);
+
+void env_seed(Forth f, Number x, Number y, Number nrg);
+
 
 void env_print(void);
 

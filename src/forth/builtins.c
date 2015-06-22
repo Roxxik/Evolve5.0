@@ -83,8 +83,6 @@ Number shiftr(Number value, Number shift) {
     X(HALF,   n / 2)\
     X(DOUBLE, n * 2)\
     X(ABS,    n > 0 ? n : -n)\
-    X(SQRT,   sqrt(n))\
-    X(CBRT,   cbrt(n))\
     X(ZERO,   n == 0)\
     X(NEGATE, -n)\
     X(NOT,    !n)\
@@ -93,6 +91,9 @@ Number shiftr(Number value, Number shift) {
     X(SQUARE, n * n)\
     X(CUBE,   n * n * n)
 
+#define UNARYOPS_NONNEG \
+    X(SQRT,   sqrt(n))\
+    X(CBRT,   cbrt(n))
 
 #define BINARYOPS \
     X(ADD,  n1 +  n2)\
@@ -135,7 +136,11 @@ void instrNOOP(Forth f) {
 void instrEXEC(Forth f) {
     if (dstack_size(f->data) >= 1) {
         Number instr = dstack_pop(f->data);
-        forth_exec(f,instr);
+        if(instr >= 0 && instr < INSTR_INSTRUCTION_MAX && instr != INSTR_NUM) {
+            forth_exec(f,instr);
+        } else {
+            f->ip = seq_next(f->ip);
+        }
     }
 }
 
@@ -309,6 +314,21 @@ UNARYOPS
 
 #undef X
 
+#define X(name,op) \
+void instr##name(Forth f) {\
+    if(dstack_size(f->data) >= 1) {\
+        Number n = dstack_pop(f->data);\
+        if(n >= 0) {\
+            dstack_push(f->data, op);\
+        }\
+    }\
+    f->ip = seq_next(f->ip);\
+}\
+
+UNARYOPS_NONNEG
+
+#undef X
+
 //binary
 #define X(name,op) \
 void instr##name(Forth f) {\
@@ -458,6 +478,25 @@ void instrMOVE(Forth f) {
         Number y = dstack_pop(f->data);
         Number x = dstack_pop(f->data);
         env_move(f,x,y);
+    }
+    f->ip = seq_next(f->ip);
+}
+
+void instrEAT(Forth f) {
+    if (dstack_size(f->data) >= 2) {
+        Number y = dstack_pop(f->data);
+        Number x = dstack_pop(f->data);
+        env_eat(f,x,y);
+    }
+    f->ip = seq_next(f->ip);
+}
+
+void instrSEED(Forth f) {
+    if (dstack_size(f->data) >= 3) {
+        Number y = dstack_pop(f->data);
+        Number x = dstack_pop(f->data);
+        Number nrg = dstack_pop(f->data);
+        env_seed(f,x,y,nrg);
     }
     f->ip = seq_next(f->ip);
 }
