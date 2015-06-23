@@ -32,7 +32,7 @@ step n:
 improve mutation
 decide wich mutations to use
 
-
+instead of hardcodign all the stuff add more parameters//a config file
 marking organsims
 improve code generation further
 add born in field to orgs
