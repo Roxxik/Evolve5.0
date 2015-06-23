@@ -10,7 +10,7 @@
 CC = clang
 
 #Comilerflags
-CFLAGS = -c -g -Wall -Wextra -Werror
+CFLAGS = -c -g -Wall -Wextra -Werror -O2
 #Linkerflags
 LDFLAGS = -lm -flto
 

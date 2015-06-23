@@ -231,6 +231,17 @@ void instrDUP(Forth f) {
     f->ip = seq_next(f->ip);
 }
 
+void instrDUP2(Forth f) {
+    if(dstack_size(f->data) >= 2) {
+        Number d2 = dstack_pop(f->data);
+        Number d1 = dstack_peek(f->data);
+        dstack_push(f->data, d2);
+        dstack_push(f->data, d1);
+        dstack_push(f->data, d2);
+    }
+    f->ip = seq_next(f->ip);
+}
+
 void instrPOP(Forth f) {
     if(dstack_size(f->data) >= 1) {
         dstack_pop(f->data);

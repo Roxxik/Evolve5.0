@@ -69,7 +69,7 @@ void forth_step (Forth f) {
     forth_exec(f,*f->ip);
     //printStacks(f);
     //printf("data: %d, call: %d\n",dstack_size(f->data),cstack_size(f->call));
-    if(cstack_size(f->call) >= 50 || dstack_size(f->data) >= 50) {
+    if(f->energy == 0 || cstack_size(f->call) >= 50 || dstack_size(f->data) >= 50) {
         forth_exit(f);
     }
 }
@@ -83,6 +83,14 @@ void forth_call(Forth f, codesize_t sub) {
     } else {
         forth_exit(f);
     }
+}
+
+Forth forth_seed(Forth f, coord_t x, coord_t y, energy_t nrg) {
+    if(nrg >= f->energy) {
+        nrg = f->energy;
+    }
+    f->energy -= nrg;
+    return forth_new(code_mutate(f->code),f->id,f->generation,0,x,y,nrg);
 }
 
 void forth_exit(Forth f) {

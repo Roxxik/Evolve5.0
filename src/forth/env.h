@@ -3,6 +3,8 @@
 
 #include "forth.h"
 
+void env_setStepSize(step_t newsize);
+
 void env_init(energy_t nrg);
 
 void env_fin(void);
@@ -11,7 +13,7 @@ identifier_t env_newID(void);
 
 void env_new(Forth f);
 
-void env_spawn(void);
+void env_spawn(energy_t nrg);
 
 void env_step(void);
 

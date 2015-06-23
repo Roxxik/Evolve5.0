@@ -24,4 +24,6 @@ void code_print(Code c);
 
 Code code_generate(void);
 
+Code code_mutate(Code c);
+
 #endif /* CODE_H */

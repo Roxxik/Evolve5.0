@@ -34,7 +34,12 @@ identifier_t nextID;
 Forth **Field;
 ForthList Organisms;
 step_t Step;
+step_t StepSize;
 energy_t Energy;
+
+void env_setStepSize(step_t newsize) {
+    StepSize = newsize;
+}
 
 void org_add(Forth f) {
     ForthList new;
@@ -59,7 +64,7 @@ void env_new(Forth f) {
 }
 
 //spawns a random organism
-void env_spawn(void) {
+void env_spawn(energy_t nrg) {
     coord_t x,y;
     x = random() % FIELDWIDTH;
     y = random() % FIELDHEIGHT;
@@ -71,7 +76,7 @@ void env_spawn(void) {
         Step+1, //will activate in next step
         x, //spawn random
         y,
-        1 //with one energy
+        nrg //with one energy
     );
     env_new(f);
 }
@@ -87,14 +92,14 @@ void forthList_free(ForthList fs) {
 }
 
 ForthList wreckZombies(ForthList list) {
-    while(list != NULL && !forth_running(list->f)) {
+    while(list != NULL && !forth_running(list->f) && list->f->energy == 0) {
         ForthList temp = list->next;
         forthList_free(list);
         list = temp;
     }
     ForthList fs = list;
     while(fs != NULL) {
-        if(fs->next != NULL && !forth_running(fs->next->f)) {
+        if(fs->next != NULL && !forth_running(fs->next->f)  && fs->next->f->energy == 0) {
             ForthList temp = fs->next;
             fs->next = temp->next;
             forthList_free(temp);
@@ -105,6 +110,8 @@ ForthList wreckZombies(ForthList list) {
     return list;
 }
 
+uint16_t killcounter;
+
 void env_step(void) {
     Organisms = wreckZombies(Organisms);
     for(ForthList fs = Organisms; fs != NULL; fs = fs->next) {
@@ -112,19 +119,45 @@ void env_step(void) {
             forth_step(fs->f);
         }
     }
+    /*
     if(Energy > 0) {
-        env_spawn();
-    } else {        
+        env_spawn(1);
+    }*/
+    /*
+    energy_t nrg = 1 + random() % 9;
+    if(Energy >= nrg) {
+        env_spawn(nrg);
+    } else {
+        killcounter++;
+    }
+    if(killcounter > 1024) {
         coord_t x,y;
         x = random() % FIELDWIDTH;
         y = random() % FIELDHEIGHT;
         if(Field[y][x] != NULL) {
             forth_exit(Field[y][x]);
         }
-    }
-    if((Step & ~(~0 << 10)) == 0) {
+        killcounter = 0;
+    }*/
+    /*
+    printf("step: %i\n",Step);
+    printf("energy: %i\n",Energy);
+    printf("count: %i\n",killcounter);
+    */
+    
+    if((Step & ~(~0 << StepSize)) == 0) {
         printf("step: %i\n",Step);
+        printf("energy: %i\n",Energy);
+        printf("count: %i\n",killcounter);
         env_print();
+        
+        int c = getchar();
+        step_t stepSize;      
+        if(c != '\n') {
+            ungetc(c,stdin);
+            scanf("%u",&stepSize);
+            env_setStepSize(stepSize);
+        }
     }
     Step++;
 }
@@ -139,7 +172,9 @@ void env_init(energy_t nrg) {
     }
     Organisms = NULL;
     Step = 0;
+    StepSize = 0;
     Energy = nrg;
+    killcounter = 0;
     srand(time(NULL));
 }
 
@@ -209,10 +244,14 @@ void env_seed(Forth f, Number x, Number y, Number nrg) {
     coord_t nx = wrapX(f->x + ox);
     coord_t ny = wrapY(f->y + oy);
     if(nrg > 0 && Field[ny][nx] == NULL) {
-        
-        
-        
-        dstack_push(f->data, 1);
+        Forth n = forth_seed(f,nx,ny,nrg);
+        if(n != NULL) {
+            Field[ny][nx] = n;
+            org_add(n);
+            dstack_push(f->data, 1);
+        } else {
+            dstack_push(f->data, 0);
+        }
     } else {
         dstack_push(f->data, 0);
     }

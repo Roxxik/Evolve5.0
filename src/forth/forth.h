@@ -48,6 +48,8 @@ void forth_step(Forth f);
 
 void forth_call(Forth f, codesize_t sub);
 
+Forth forth_seed(Forth f, coord_t x, coord_t y, energy_t nrg);
+
 void forth_exit(Forth f);
 
 

@@ -27,4 +27,8 @@ void block_print(Block b);
 
 Block block_generate(void);
 
+Block block_copy(Block b);
+
+Block block_mutate(Block b);
+
 #endif /* BLOCK_H */

@@ -22,15 +22,18 @@ step 5:
 
 
 step n-2
-    getting some performance in / multithreading
+    performance / multithreading
 step n-1:
     ???
 step n:
     profit
 
 //TODO
-add code_copy
-add seed
+improve mutation
+decide wich mutations to use
+
+
+marking organsims
 improve code generation further
 add born in field to orgs
 do automatic expanding stacks
@@ -40,7 +43,6 @@ more efficient field
 
 adding rng-seed and prng
 
-decide wich mutations to use
 maybe add selfmodifiying capabilities
     is a child getting the initial code of parent or the code at birth?
 adding gender//maybe not
@@ -50,6 +52,9 @@ add more reflection
 
 
 //DONE
+can an organism kill itself to bore a child? --yes
+add code_copy
+add seed
 some sort of global energy to draw from
 deleting organisms//needed if implementing decay or eat
 add eat

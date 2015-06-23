@@ -23,6 +23,7 @@
     X(NUM)\
     \
     X(DUP)\
+    X(DUP2)\
     X(POP)\
     X(SWAP)\
     X(OVER)\

@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include <stdbool.h>
 
 #include "block.h"
 #include "util.h"
@@ -40,11 +41,28 @@ void code_print(Code c) {
 }
 
 Code code_generate(void) {
-    codesize_t nBlocks = 1 + (random() % 10);
+    codesize_t nBlocks = 1 + (random() % 20);
     Block *blocks;
     MALLOC(blocks,nBlocks * sizeof(*blocks));
     for(codesize_t i = 0; i < nBlocks; i++) {
         blocks[i] = block_generate();
     }
     return code_new(nBlocks,blocks);
+}
+
+
+Code code_mutate(Code c) {
+    codesize_t size = code_getSize(c);
+    codesize_t nBlock = random() % size;
+    bool mutate = (random() % 10) == 0;
+    Block *blocks;
+    MALLOC(blocks,size * sizeof(*blocks));
+    for(codesize_t i = 0; i < size; i++) {
+        if(i == nBlock && mutate) {
+            blocks[i] = block_mutate(code_getBlock(c,i));
+        } else {
+            blocks[i] = block_copy(code_getBlock(c,i));
+        }
+    }
+    return code_new(size,blocks);
 }

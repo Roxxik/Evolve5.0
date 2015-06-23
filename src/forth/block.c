@@ -22,6 +22,14 @@ InstrList instrList_add(InstrList list, Instruction instr, Number num) {
     return new;
 }
 
+blocksize_t instrList_length(InstrList list) {
+    blocksize_t res = 0;
+    for(;list != NULL; list = list->next) {
+        ++res;
+    }
+    return res;
+}
+
 blocksize_t instrList_size(InstrList list) {
     blocksize_t res = 0;
     for(;list != NULL; list = list->next) {
@@ -33,6 +41,25 @@ blocksize_t instrList_size(InstrList list) {
     return res;
 }
 
+InstrList instrList_get(InstrList list, blocksize_t index) {
+    for(;list != NULL &&  index > 0; list = list->next, index--);
+    return list;
+}
+
+void instrList_reverse(InstrList *list) {
+    InstrList prev = NULL;
+    InstrList current = *list;
+    InstrList next;
+    while(current != NULL) {
+        next = current->next;
+        current->next = prev;
+        prev = current;
+        current = next;
+    }
+    *list = prev;
+}
+
+//this will delete the list
 Instruction *instrList_toInstrSeq(InstrList list) {
     Instruction *new = NULL;
     MALLOC(new, instrList_size(list) * sizeof(*new));
@@ -51,10 +78,23 @@ Instruction *instrList_toInstrSeq(InstrList list) {
     return new;
 }
 
-
+//this keeps the seq intact
+InstrList instrList_fromInstrSeq(Instruction *seq) {
+    InstrList list = NULL;
+    for(Instruction *i = seq; *i != INSTR_EXIT; i = seq_next(i)) {
+        if(*i == INSTR_NUM) {
+            list = instrList_add(list, *i, *(Number*)(i+1));
+        } else {
+            list = instrList_add(list, *i, 0);
+        }
+    }
+    list = instrList_add(list, INSTR_EXIT, 0);
+    instrList_reverse(&list);
+    return list;
+}
 
 Block block_generate(void) {
-    blocksize_t nInstr = random() % 20;
+    blocksize_t nInstr = random() % 100;
     
     InstrList list = instrList_add(NULL, INSTR_EXIT, 0);
     
@@ -69,6 +109,30 @@ Block block_generate(void) {
     }
     return block_new(instrList_toInstrSeq(list));
 }
+
+
+Block block_copy(Block b) {
+    return block_new(instrList_toInstrSeq(instrList_fromInstrSeq(block_getInstrSeq(b))));
+}
+
+Block block_mutate(Block b) {
+    InstrList list = instrList_fromInstrSeq(block_getInstrSeq(b));
+    blocksize_t length = instrList_length(list);
+    
+    blocksize_t nInstr = random() % length;
+    
+    InstrList elem = instrList_get(list,nInstr);
+    
+    assert(elem != NULL);
+    
+    elem->instr = random() % INSTR_INSTRUCTION_MAX;
+    if(elem->instr == INSTR_NUM) {
+        elem->num = random();
+    }
+    
+    return block_new(instrList_toInstrSeq(list));   
+}
+
 
 Block block_new(Instruction *seq) {
     return seq;
