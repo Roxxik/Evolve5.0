@@ -4,11 +4,11 @@ use env::EventType;
 pub type Block = Vec<Instruction>;
 pub type Code = Vec<Block>;
 
-pub type CellID = u64;
+type OrgRef = Rc<RefCell<Organism>>;
 
 #[derive(Debug)]
 pub struct Cell {
-    pub id: CellID,
+    pub id: u64,
     pub step: u64,
     pub x: u64,
     pub y: u64,
