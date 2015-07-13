@@ -10,9 +10,9 @@ pub type CellID = u64;
 pub struct Cell {
     pub id: CellID,
     pub step: u64,
-    x: u64,
-    y: u64,
-    nrg: u64,
+    pub x: u64,
+    pub y: u64,
+    pub nrg: u64,
     code: Code,
     cb: usize,
     ip: usize,
@@ -22,12 +22,13 @@ pub struct Cell {
 }
 
 impl Cell {
-    pub fn new(x: u64, y: u64, step: u64, code: Code) -> Cell {
+    pub fn new(id: CellID, x: u64, y: u64, step: u64, nrg: u64, code: Code) -> Cell {
         Cell {
-            id: 0,
+            id: id,
             step: step,
             x: x,
             y: y,
+            nrg: nrg,
             code: code,
             ip: 0,
             cb: 0,
@@ -38,21 +39,21 @@ impl Cell {
     }
 
     pub fn step(&mut self) -> Option<EventType> {
-        let mut res = None;
+        let res;
         if self.is_running() {
-            let instr = self.get_current_inst();
+            let instr = self.get_current_instr();
             res = instr.exec(self);
             if res.is_none() {
                 self.step += 1;
             }
         } else {
-            res = Some(EventType::Zombify{ cellID: self.id });
+            res = Some(EventType::Zombify);
         }
         // add code to check if this cell should die
         res
     }
 
-    fn get_current_inst(&self) -> Instruction {
+    fn get_current_instr(&self) -> Instruction {
         if self.ip < self.code[self.cb].len() {
             self.code[self.cb][self.ip]
         } else {

@@ -63,7 +63,7 @@ pub enum Instruction {
     Min,
     Max,
     Mov,
-    Eat,
+    //Eat,
     Spawn,
 }
 
@@ -106,31 +106,31 @@ impl Instruction {
             Negate  => instr_unary(cell, |x| x.wrapping_neg()),
             Not     => instr_unary(cell, |x| !x & 1),
             Invert  => instr_unary(cell, |x| !x),
-            Zero    => instr_unary(cell, |x| boolToInt(x == 0)),
+            Zero    => instr_unary(cell, |x| bool_to_int(x == 0)),
             Add     => instr_binary(cell, |x, y| x + y),
             Sub     => instr_binary(cell, |x, y| x - y),
             Mul     => instr_binary(cell, |x, y| x * y),
             Div     => instr_binary_notnull(cell, |x, y| x / y),
             Mod     => instr_binary_notnull(cell, |x, y| x % y),
-            Eq      => instr_binary(cell, |x, y| boolToInt(x == y)),
-            Ne      => instr_binary(cell, |x, y| boolToInt(x != y)),
-            Lt      => instr_binary(cell, |x, y| boolToInt(x  < y)),
-            Gt      => instr_binary(cell, |x, y| boolToInt(x  > y)),
-            Le      => instr_binary(cell, |x, y| boolToInt(x <= y)),
-            Ge      => instr_binary(cell, |x, y| boolToInt(x >= y)),
+            Eq      => instr_binary(cell, |x, y| bool_to_int(x == y)),
+            Ne      => instr_binary(cell, |x, y| bool_to_int(x != y)),
+            Lt      => instr_binary(cell, |x, y| bool_to_int(x  < y)),
+            Gt      => instr_binary(cell, |x, y| bool_to_int(x  > y)),
+            Le      => instr_binary(cell, |x, y| bool_to_int(x <= y)),
+            Ge      => instr_binary(cell, |x, y| bool_to_int(x >= y)),
             Or      => instr_binary(cell, |x, y| x | y),
             And     => instr_binary(cell, |x, y| x & y),
             Xor     => instr_binary(cell, |x, y| x ^ y),
             Min     => instr_binary(cell, |x, y| if x > y {x} else {y}),
             Max     => instr_binary(cell, |x, y| if x < y {x} else {y}),
             Mov     => instr_move(cell),
-            Eat     => instr_eat(cell),
+            //Eat     => instr_eat(cell),
             Spawn   => instr_spawn(cell),
         }
     }
 }
 
-fn boolToInt(b: bool) -> Number {
+fn bool_to_int(b: bool) -> Number {
     if b {
         1
     } else {
@@ -328,20 +328,21 @@ fn instr_binary_notnull<F>(cell: &mut Cell, f: F) -> Option<EventType>
 
 fn instr_move(cell: &mut Cell) -> Option<EventType> {
     cell.pop(2).and_then(|v| {
-        Some(EventType::Mov{ cellID: cell.id, dir: Direction::from_coords(v[0], v[1]) })
+        Some(EventType::Mov{ dir: Direction::from_coords(v[0], v[1]) })
     })
 }
 
+/*
 fn instr_eat(cell: &mut Cell) -> Option<EventType> {
     cell.pop(2).and_then(|v| {
         Some(EventType::Eat{ cellID: cell.id, dir: Direction::from_coords(v[0], v[1]) })
     })
-}
+}*/
 
 fn instr_spawn(cell: &mut Cell) -> Option<EventType> {
     cell.pop(3).and_then(|v| {
         if v[2] >= 0 {
-            Some(EventType::Spawn { cellID: cell.id, dir: Direction::from_coords(v[0], v[1]), nrg: v[2] as u64 })
+            Some(EventType::Spawn { dir: Direction::from_coords(v[0], v[1]), nrg: v[2] as u64 })
         } else {
             None
         }

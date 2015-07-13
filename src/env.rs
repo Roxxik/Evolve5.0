@@ -51,7 +51,7 @@ impl Env {
             let cell = self.cells.get_mut(&self.runnable.pop().unwrap().0).unwrap();
             println!("found cell {:?}",cell);
             if let Some(eventtype) = cell.step() {
-                self.blocking.push(Event::new(eventtype, cell.step));
+                self.blocking.push(Event::new(eventtype, cell.id, cell.step));
                 println!("cell blocked");
             } else {
                 self.runnable.push((cell.id,cell.step));
@@ -116,39 +116,59 @@ impl Direction {
             _       => panic!("invalid direction")
         }
     }
+
+    pub fn get_x(self) -> i8 {
+        use self::Direction::*;
+        match self {
+            North | South                =>  0,
+            NorthEast | East | SouthEast =>  1,
+            NorthWest | West | SouthWest => -1,
+        }
+    }
+
+    pub fn get_y(self) -> i8 {
+        use self::Direction::*;
+        match self {
+            East | West                   =>  0,
+            NorthEast | North | NorthWest =>  1,
+            SouthEast | South | SouthWest => -1,
+        }
+    }
 }
 
 #[derive(Debug,Clone,Copy,Eq,PartialEq)]
 pub enum EventType{
-    Mov     { cellID: CellID, dir: Direction },
-    Eat     { cellID: CellID, dir: Direction },
-    Spawn   { cellID: CellID, dir: Direction, nrg: u64 },
-    Zombify { cellID: CellID },
+    Mov     { dir: Direction },
+    Spawn   { dir: Direction, nrg: u64 },
+    Zombify,
     Die,
 }
 
 #[derive(Debug,Clone,Copy,Eq,PartialEq)]
-struct Event{
-    ty: EventType,
-    step: u64,
+pub struct Event{
+    pub ty: EventType,
+    pub id: CellID,
+    pub step: u64,
 }
 
 impl Event {
-    pub fn new(ty: EventType, step: u64) -> Event {
+    pub fn new(ty: EventType, id: CellID, step: u64) -> Event {
         Event{
             ty: ty,
+            id: id,
             step: step,
         }
     }
 
     pub fn execute(self, env: &mut Env) {
         match self.ty {
-            EventType::Zombify{ cellID: cellID } => {
-                let cell = env.cells.remove(&cellID).unwrap();
-                env.blocking.push(Event{
-                    ty: EventType::Die,
-                    step: env.step + 100,//hardcoded for now will be replaced later by some kind of decay
-                });
+            EventType::Zombify => {
+                let cell = env.cells.remove(&self.id).unwrap();
+                env.blocking.push(Event::new(
+                    EventType::Die,
+                    cell.id,
+                    env.step + 100,//hardcoded for now will be replaced later by some kind of decay
+                ));
                 //replace cell with corpse
                 env.field.zombify(cell);
             }
@@ -156,7 +176,8 @@ impl Event {
 
             }
             _ => {
-                env.field.execute(self);
+                let cell = env.cells.get_mut(&self.id).unwrap();
+                env.field.execute(self, cell);
             }
         }
         /*
