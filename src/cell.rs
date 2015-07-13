@@ -15,7 +15,7 @@ pub struct Cell {
     code: Code,
     cb: usize,
     ip: usize,
-    is_zombie: bool,
+    is_running: bool,
     call: Vec<(usize, usize)>,
     data: Vec<Number>,
 }
@@ -30,7 +30,7 @@ impl Cell {
             code: code,
             ip: 0,
             cb: 0,
-            is_zombie: false,
+            is_running: true,
             call: Vec::new(),
             data: Vec::new(),
         }
@@ -44,6 +44,8 @@ impl Cell {
             if res.is_none() {
                 self.step += 1;
             }
+        } else {
+            res = EventType::Dead;
         }
         // add code to check if this cell should die
         res
@@ -58,7 +60,7 @@ impl Cell {
     }
 
     pub fn is_running(&self) -> bool {
-        !self.is_zombie
+        self.is_running
     }
 
     pub fn next_instr(&mut self) {
@@ -74,7 +76,8 @@ impl Cell {
             self.cb = cb;
         }
     }
-// loop is a keyword
+
+    // loop is a keyword
     pub fn looop(&mut self) {
         assert!(self.is_running());
         self.ip = 0;
@@ -83,7 +86,7 @@ impl Cell {
     pub fn ret(&mut self) {
         assert!(self.is_running());
         if self.call.is_empty() {
-            self.is_zombie = true;
+            self.is_running = false;
         } else {
             let (cb, ip) = self.call.pop().unwrap();
             self.ip = ip;
@@ -121,29 +124,5 @@ impl Cell {
         } else {
             None
         }
-    }
-}
-
-impl Eq for Cell {}
-
-impl PartialEq for Cell {
-    fn eq(&self, other: &Cell) -> bool {
-        self.id == other.id
-    }
-}
-
-use std::cmp::Ordering;
-// Cells have an ordering based on their step
-impl Ord for Cell {
-    fn cmp(&self, other: &Cell) -> Ordering {
-        // Notice that the we flip the ordering here
-        other.step.cmp(&self.step)
-    }
-}
-
-// `PartialOrd` needs to be implemented as well.
-impl PartialOrd for Cell {
-    fn partial_cmp(&self, other: &Cell) -> Option<Ordering> {
-        Some(self.cmp(other))
     }
 }

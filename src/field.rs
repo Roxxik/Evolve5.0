@@ -1,11 +1,8 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-
-use cell::Cell;
+use cell::CellID;
 
 #[derive(Debug)]
 pub struct Field{
-    field: Vec<Vec<Option<Rc<RefCell<Cell>>>>>
+    field: Vec<Vec<Option<CellID>>>
 }
 
 

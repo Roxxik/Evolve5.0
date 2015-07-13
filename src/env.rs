@@ -1,6 +1,5 @@
 use std::collections::BinaryHeap;
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::collections::HashMap;
 use std::cmp::Ordering;
 
 
@@ -12,8 +11,9 @@ pub struct Env {
     step: u64,
     nrg: u64,
     field: Field,//sparse vector of all possible positions
+    cells: HashMap<CellID,Cell>,
     blocking: BinaryHeap<Event>,
-    runnable: BinaryHeap<CellID>,//heap of events(action+cell) sorted by step
+    runnable: BinaryHeap<(CellID, u64)>,//heap of events(action+cell) sorted by step
 }
 
 impl Env {
@@ -22,13 +22,17 @@ impl Env {
             step: 0,
             nrg: nrg,
             field: Field::new(x,y),
+            cells: HashMap::new(),
             blocking: BinaryHeap::new(),
             runnable: BinaryHeap::new(),
         }
     }
-    pub fn put(&mut self, cell: Rc<RefCell<Cell>>) {
-        //self.field.put(cell);
-        self.runnable.push(cell);
+
+    pub fn put(&mut self, mut cell: Cell) {
+        cell.step = self.step;
+        //self.field.put(cell.id);
+        self.runnable.push((cell.id, self.step));
+        self.cells.insert(cell.id, cell);
     }
 
     pub fn step(&mut self) {
@@ -42,13 +46,15 @@ impl Env {
         //there is no external dependency for
         while self.runnable.peek().map_or(
             false, // runnablequeue is empty -> return false
-            |c| c.step == self.step
+            |c| c.1 == self.step
+            //c.step == self.step
         ) {
-            let mut cell = self.runnable.pop().unwrap();
+            let cell = self.cells.get_mut(&self.runnable.pop().unwrap().0).unwrap();
+            println!("found {}",cell.id);
             if let Some(eventtype) = cell.step() {
                 self.blocking.push(Event::new(eventtype, cell));
             } else {
-                self.runnable.push(cell);
+                self.runnable.push((cell.id,cell.step));
             }
         }
 
@@ -57,7 +63,7 @@ impl Env {
         //only do this if all cells finished running in this step
         while self.blocking.peek().map_or(
             false, // blockingqueue is empty -> return false
-            |e| e.cell.step == self.step
+            |e| e.step == self.step
         ) {
             let e = self.blocking.pop().unwrap(); //there must be a value
             e.execute(self); //the event moves here into execute
@@ -70,7 +76,14 @@ impl Env {
 use std::fmt;
 impl fmt::Debug for Env {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(f, "Env{{step: {}, energy: {}, field: {:?}}}",self.step,self.nrg,self.field)
+        write!(
+            f,
+            "Env{{step: {}, energy: {}, cells: {:?}}}",
+            self.step,
+            self.nrg,
+            self.cells,
+            /*self.field, field: {:?}*/
+        )
     }
 }
 
@@ -85,6 +98,7 @@ pub enum Direction{
     West,
     NorthWest,
 }
+
 impl Direction {
     pub fn from_coords(x: i64, y: i64) -> Direction {
         let x = x.signum();
@@ -108,31 +122,34 @@ pub enum EventType{
     Mov   { dir: Direction },
     Eat   { dir: Direction },
     Spawn { dir: Direction, nrg: u64 },
+    Dead,
 }
 
 #[derive(Debug)]
 struct Event{
     ty: EventType,
-    cell: Cell,
+    id: CellID,
+    step: u64,
 }
 
 impl Event {
-    pub fn new(ty: EventType, cell: Cell) -> Event {
+    pub fn new(ty: EventType, cell: &mut Cell) -> Event {
         Event{
             ty: ty,
-            cell: cell,
+            id: cell.id,
+            step: cell.step,
         }
     }
 
-    pub fn execute(mut self, env: &mut Env) {
+    pub fn execute(self, env: &mut Env) {
         // fixme: this just drops the event...
-
+        let cell = env.cells.get_mut(&self.id).unwrap();
         // manipulate the environment accordingly,
         // push result to cells data stack
         // increment cells step
-        self.cell.step += 1;
+        cell.step += 1;
         // insert cell into runnable
-        env.runnable.push(self.cell);
+        env.runnable.push((cell.id, cell.step));
         // increment cellcount of cells step
     }
 }
@@ -142,7 +159,7 @@ impl Eq for Event {}
 impl PartialEq for Event {
     fn eq(&self, other: &Event) -> bool {
         self.ty == other.ty
-        && self.cell.eq(&other.cell)
+        && self.id.eq(&other.id)
     }
 }
 
@@ -150,7 +167,7 @@ impl PartialEq for Event {
 impl Ord for Event {
     fn cmp(&self, other: &Event) -> Ordering {
         // Notice that the we flip the ordering here
-        other.cell.step.cmp(&self.cell.step)
+        other.step.cmp(&self.step)
     }
 }
 
