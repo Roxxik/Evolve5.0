@@ -2,10 +2,12 @@
 #![feature(vec_push_all)]
 
 
-mod cell;
+mod organism;
 mod instruction;
 mod env;
 mod field;
+mod types;
+mod event;
 
 use env::Env;
 

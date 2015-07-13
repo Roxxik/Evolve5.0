@@ -1,7 +1,6 @@
-use cell::Cell;
-use env::{EventType, Direction};
-
-pub type Number = i64;
+use types::*;
+use organism::Organism;
+use event::EventType;
 
 #[derive(Debug,Clone,Copy)]
 pub enum Instruction {
@@ -70,62 +69,62 @@ pub enum Instruction {
 use self::Instruction::*;
 
 impl Instruction {
-    pub fn exec(self, cell: &mut Cell) -> Option<EventType> {
-        cell.next_instr();
+    pub fn exec(self, org: &mut Organism) -> Option<EventType> {
+        org.next_instr();
         match self {
-            Num(n)  => instr_num(cell, n),
-            Call    => instr_call(cell),
-            If      => instr_if(cell),
-            Ifelse  => instr_ifelse(cell),
-            Loop    => instr_loop(cell),
-            Condret => instr_condret(cell),
-            Ret     => instr_ret(cell),
-            Pop     => instr_pop(cell),
-            Pop2    => instr_pop2(cell),
-            Dup     => instr_dup(cell),
-            Dup2    => instr_dup2(cell),
-            Conddup => instr_conddup(cell),
-            Swap    => instr_swap(cell),
-            Swap2   => instr_swap2(cell),
-            Over    => instr_over(cell),
-            Over2   => instr_over2(cell),
-            Rot     => instr_rot(cell),
-            Tor     => instr_tor(cell),
-            Nip     => instr_nip(cell),
-            Tuck    => instr_tuck(cell),
-            Inc     => instr_unary(cell, |x| x + 1),
-            Inc2    => instr_unary(cell, |x| x + 2),
-            Dec     => instr_unary(cell, |x| x - 1),
-            Dec2    => instr_unary(cell, |x| x - 2),
-            Half    => instr_unary(cell, |x| x / 2),
-            Double  => instr_unary(cell, |x| x * 2),
-            Abs     => instr_unary(cell, |x| x.abs()),
-            Square  => instr_unary(cell, |x| x * x),
-            Sqrt    => instr_unary_nonnegative(cell, |x| (x as f64).sqrt() as Number),
-            Signum  => instr_unary(cell, |x| x.signum()),
-            Negate  => instr_unary(cell, |x| x.wrapping_neg()),
-            Not     => instr_unary(cell, |x| !x & 1),
-            Invert  => instr_unary(cell, |x| !x),
-            Zero    => instr_unary(cell, |x| bool_to_int(x == 0)),
-            Add     => instr_binary(cell, |x, y| x + y),
-            Sub     => instr_binary(cell, |x, y| x - y),
-            Mul     => instr_binary(cell, |x, y| x * y),
-            Div     => instr_binary_notnull(cell, |x, y| x / y),
-            Mod     => instr_binary_notnull(cell, |x, y| x % y),
-            Eq      => instr_binary(cell, |x, y| bool_to_int(x == y)),
-            Ne      => instr_binary(cell, |x, y| bool_to_int(x != y)),
-            Lt      => instr_binary(cell, |x, y| bool_to_int(x  < y)),
-            Gt      => instr_binary(cell, |x, y| bool_to_int(x  > y)),
-            Le      => instr_binary(cell, |x, y| bool_to_int(x <= y)),
-            Ge      => instr_binary(cell, |x, y| bool_to_int(x >= y)),
-            Or      => instr_binary(cell, |x, y| x | y),
-            And     => instr_binary(cell, |x, y| x & y),
-            Xor     => instr_binary(cell, |x, y| x ^ y),
-            Min     => instr_binary(cell, |x, y| if x > y {x} else {y}),
-            Max     => instr_binary(cell, |x, y| if x < y {x} else {y}),
-            Mov     => instr_move(cell),
-            //Eat     => instr_eat(cell),
-            Spawn   => instr_spawn(cell),
+            Num(n)  => instr_num(org, n),
+            Call    => instr_call(org),
+            If      => instr_if(org),
+            Ifelse  => instr_ifelse(org),
+            Loop    => instr_loop(org),
+            Condret => instr_condret(org),
+            Ret     => instr_ret(org),
+            Pop     => instr_pop(org),
+            Pop2    => instr_pop2(org),
+            Dup     => instr_dup(org),
+            Dup2    => instr_dup2(org),
+            Conddup => instr_conddup(org),
+            Swap    => instr_swap(org),
+            Swap2   => instr_swap2(org),
+            Over    => instr_over(org),
+            Over2   => instr_over2(org),
+            Rot     => instr_rot(org),
+            Tor     => instr_tor(org),
+            Nip     => instr_nip(org),
+            Tuck    => instr_tuck(org),
+            Inc     => instr_unary(org, |x| x + 1),
+            Inc2    => instr_unary(org, |x| x + 2),
+            Dec     => instr_unary(org, |x| x - 1),
+            Dec2    => instr_unary(org, |x| x - 2),
+            Half    => instr_unary(org, |x| x / 2),
+            Double  => instr_unary(org, |x| x * 2),
+            Abs     => instr_unary(org, |x| x.abs()),
+            Square  => instr_unary(org, |x| x * x),
+            Sqrt    => instr_unary_nonnegative(org, |x| (x as f64).sqrt() as Number),
+            Signum  => instr_unary(org, |x| x.signum()),
+            Negate  => instr_unary(org, |x| x.wrapping_neg()),
+            Not     => instr_unary(org, |x| !x & 1),
+            Invert  => instr_unary(org, |x| !x),
+            Zero    => instr_unary(org, |x| bool_to_int(x == 0)),
+            Add     => instr_binary(org, |x, y| x + y),
+            Sub     => instr_binary(org, |x, y| x - y),
+            Mul     => instr_binary(org, |x, y| x * y),
+            Div     => instr_binary_notnull(org, |x, y| x / y),
+            Mod     => instr_binary_notnull(org, |x, y| x % y),
+            Eq      => instr_binary(org, |x, y| bool_to_int(x == y)),
+            Ne      => instr_binary(org, |x, y| bool_to_int(x != y)),
+            Lt      => instr_binary(org, |x, y| bool_to_int(x  < y)),
+            Gt      => instr_binary(org, |x, y| bool_to_int(x  > y)),
+            Le      => instr_binary(org, |x, y| bool_to_int(x <= y)),
+            Ge      => instr_binary(org, |x, y| bool_to_int(x >= y)),
+            Or      => instr_binary(org, |x, y| x | y),
+            And     => instr_binary(org, |x, y| x & y),
+            Xor     => instr_binary(org, |x, y| x ^ y),
+            Min     => instr_binary(org, |x, y| if x > y {x} else {y}),
+            Max     => instr_binary(org, |x, y| if x < y {x} else {y}),
+            Mov     => instr_move(org),
+            //Eat     => instr_eat(org),
+            Spawn   => instr_spawn(org),
         }
     }
 }
@@ -138,209 +137,209 @@ fn bool_to_int(b: bool) -> Number {
     }
 }
 
-fn instr_num(cell: &mut Cell, n: Number) -> Option<EventType> {
-    cell.push(n);
+fn instr_num(org: &mut Organism, n: Number) -> Option<EventType> {
+    org.push(n);
     None
 }
 
-fn instr_call(cell: &mut Cell) -> Option<EventType> {
-    cell.pop(1).and_then(|v| Some(cell.call(v[0])));
+fn instr_call(org: &mut Organism) -> Option<EventType> {
+    org.pop(1).and_then(|v| Some(org.call(v[0])));
     None
 }
 
-fn instr_if(cell: &mut Cell) -> Option<EventType> {
-    cell.pop(2).and_then(|v| {
+fn instr_if(org: &mut Organism) -> Option<EventType> {
+    org.pop(2).and_then(|v| {
         if v[0] != 0 {
-            cell.call(v[1]);
+            org.call(v[1]);
         }
         None
     })
 }
 
-fn instr_ifelse(cell: &mut Cell) -> Option<EventType> {
-    cell.pop(3).and_then(|v| {
+fn instr_ifelse(org: &mut Organism) -> Option<EventType> {
+    org.pop(3).and_then(|v| {
         if v[0] != 0 {
-            cell.call(v[1]);
+            org.call(v[1]);
         } else {
-            cell.call(v[2]);
+            org.call(v[2]);
         }
         None
     })
 }
 
-fn instr_loop(cell: &mut Cell) -> Option<EventType> {
-    cell.pop(1).and_then(|v| {
+fn instr_loop(org: &mut Organism) -> Option<EventType> {
+    org.pop(1).and_then(|v| {
         if v[0] != 0 {
-            cell.looop();
+            org.looop();
         }
         None
     })
 }
 
-fn instr_condret(cell: &mut Cell) -> Option<EventType> {
-    cell.pop(1).and_then(|v| {
+fn instr_condret(org: &mut Organism) -> Option<EventType> {
+    org.pop(1).and_then(|v| {
         if v[0] != 0 {
-            cell.ret();
+            org.ret();
         }
         None
     })
 }
-fn instr_ret(cell: &mut Cell) -> Option<EventType> {
-    cell.ret();
+fn instr_ret(org: &mut Organism) -> Option<EventType> {
+    org.ret();
     None
 }
 
-fn instr_pop(cell: &mut Cell) -> Option<EventType> {
-    cell.pop(1);
+fn instr_pop(org: &mut Organism) -> Option<EventType> {
+    org.pop(1);
     None
 }
 
-fn instr_pop2(cell: &mut Cell) -> Option<EventType> {
-    cell.pop(2);
+fn instr_pop2(org: &mut Organism) -> Option<EventType> {
+    org.pop(2);
     None
 }
 
-fn instr_dup(cell: &mut Cell) -> Option<EventType> {
-    cell.peek(1).and_then(|v| {
-        cell.push(v[0]);
+fn instr_dup(org: &mut Organism) -> Option<EventType> {
+    org.peek(1).and_then(|v| {
+        org.push(v[0]);
         None
     })
 }
 
-fn instr_dup2(cell: &mut Cell) -> Option<EventType> {
-    cell.peek(2).and_then(|v| {
-        cell.push_all(v);
+fn instr_dup2(org: &mut Organism) -> Option<EventType> {
+    org.peek(2).and_then(|v| {
+        org.push_all(v);
         None
     })
 }
 
-fn instr_conddup(cell: &mut Cell) -> Option<EventType> {
-    cell.peek(1).and_then(|v| {
+fn instr_conddup(org: &mut Organism) -> Option<EventType> {
+    org.peek(1).and_then(|v| {
         if v[0] != 0 {
-            cell.push(v[0]);
+            org.push(v[0]);
         }
         None
     })
 }
 
-fn instr_swap(cell: &mut Cell) -> Option<EventType> {
-    cell.pop(2).and_then(|mut v| {
+fn instr_swap(org: &mut Organism) -> Option<EventType> {
+    org.pop(2).and_then(|mut v| {
         v.reverse();
-        cell.push_all(v);
+        org.push_all(v);
         None
     })
 }
 
-fn instr_swap2(cell: &mut Cell) -> Option<EventType> {
-    cell.pop(4).and_then(|mut v| {
+fn instr_swap2(org: &mut Organism) -> Option<EventType> {
+    org.pop(4).and_then(|mut v| {
         v.swap(0,1);
         v.swap(2,3);
-        cell.push_all(v);
+        org.push_all(v);
         None
     })
 }
 
-fn instr_over(cell: &mut Cell) -> Option<EventType> {
-    cell.peek(2).and_then(|v| {
-        cell.push(v[0]);
+fn instr_over(org: &mut Organism) -> Option<EventType> {
+    org.peek(2).and_then(|v| {
+        org.push(v[0]);
         None
     })
 }
 
-fn instr_over2(cell: &mut Cell) -> Option<EventType> {
-    cell.peek(4).and_then(|mut v| {
+fn instr_over2(org: &mut Organism) -> Option<EventType> {
+    org.peek(4).and_then(|mut v| {
         v.truncate(2);
-        cell.push_all(v);
+        org.push_all(v);
         None
     })
 }
 
-fn instr_rot(cell: &mut Cell) -> Option<EventType> {
-    cell.pop(3).and_then(|mut v| {
+fn instr_rot(org: &mut Organism) -> Option<EventType> {
+    org.pop(3).and_then(|mut v| {
         let tmp = v.remove(0);
         v.push(tmp);
-        cell.push_all(v);
+        org.push_all(v);
         None
     })
 }
 
-fn instr_tor(cell: &mut Cell) -> Option<EventType> {
-    cell.pop(3).and_then(|mut v| {
+fn instr_tor(org: &mut Organism) -> Option<EventType> {
+    org.pop(3).and_then(|mut v| {
         let tmp = v.pop().unwrap();
         v.insert(0, tmp);
-        cell.push_all(v);
+        org.push_all(v);
         None
     })
 }
 
-fn instr_nip(cell: &mut Cell) -> Option<EventType> {
-    cell.pop(2).and_then(|v| {
-        cell.push(v[1]);
+fn instr_nip(org: &mut Organism) -> Option<EventType> {
+    org.pop(2).and_then(|v| {
+        org.push(v[1]);
         None
     })
 }
 
-fn instr_tuck(cell: &mut Cell) -> Option<EventType> {
-    cell.pop(2).and_then(|v| {
-        cell.push(v[1]);
-        cell.push_all(v);
+fn instr_tuck(org: &mut Organism) -> Option<EventType> {
+    org.pop(2).and_then(|v| {
+        org.push(v[1]);
+        org.push_all(v);
         None
     })
 }
 
 
 //change this to a wrapping semantic or some random runtime failures will show
-fn instr_unary<F>(cell: &mut Cell, f: F) -> Option<EventType>
+fn instr_unary<F>(org: &mut Organism, f: F) -> Option<EventType>
     where F: Fn(Number) -> Number {
-    cell.pop(1).and_then(|v| {
-        cell.push(f(v[0]));
+    org.pop(1).and_then(|v| {
+        org.push(f(v[0]));
         None
     })
 }
 
-fn instr_unary_nonnegative<F>(cell: &mut Cell, f: F) -> Option<EventType>
+fn instr_unary_nonnegative<F>(org: &mut Organism, f: F) -> Option<EventType>
     where F: Fn(Number) -> Number {
-    cell.pop(1).and_then(|v| {
+    org.pop(1).and_then(|v| {
         if v[0] >= 0 {
-            cell.push(f(v[0]));
+            org.push(f(v[0]));
         }
         None
     })
 }
 
-fn instr_binary<F>(cell: &mut Cell, f: F) -> Option<EventType>
+fn instr_binary<F>(org: &mut Organism, f: F) -> Option<EventType>
     where F: Fn(Number, Number) -> Number {
-    cell.pop(2).and_then(|v| {
-        cell.push(f(v[0],v[1]));
+    org.pop(2).and_then(|v| {
+        org.push(f(v[0],v[1]));
         None
     })
 }
 
-fn instr_binary_notnull<F>(cell: &mut Cell, f: F) -> Option<EventType>
+fn instr_binary_notnull<F>(org: &mut Organism, f: F) -> Option<EventType>
     where F: Fn(Number, Number) -> Number {
-    cell.pop(2).and_then(|v| {
+    org.pop(2).and_then(|v| {
         if v[1] != 0 {
-            cell.push(f(v[0],v[1]));
+            org.push(f(v[0],v[1]));
         }
         None
     })
 }
 
-fn instr_move(cell: &mut Cell) -> Option<EventType> {
-    cell.pop(2).and_then(|v| {
+fn instr_move(org: &mut Organism) -> Option<EventType> {
+    org.pop(2).and_then(|v| {
         Some(EventType::Mov{ dir: Direction::from_coords(v[0], v[1]) })
     })
 }
 
 /*
-fn instr_eat(cell: &mut Cell) -> Option<EventType> {
-    cell.pop(2).and_then(|v| {
-        Some(EventType::Eat{ cellID: cell.id, dir: Direction::from_coords(v[0], v[1]) })
+fn instr_eat(org: &mut Organism) -> Option<EventType> {
+    org.pop(2).and_then(|v| {
+        Some(EventType::Eat{ orgID: org.id, dir: Direction::from_coords(v[0], v[1]) })
     })
 }*/
 
-fn instr_spawn(cell: &mut Cell) -> Option<EventType> {
-    cell.pop(3).and_then(|v| {
+fn instr_spawn(org: &mut Organism) -> Option<EventType> {
+    org.pop(3).and_then(|v| {
         if v[2] >= 0 {
             Some(EventType::Spawn { dir: Direction::from_coords(v[0], v[1]), nrg: v[2] as u64 })
         } else {

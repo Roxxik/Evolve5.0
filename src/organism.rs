@@ -1,29 +1,32 @@
-use instruction::{Instruction, Number};
-use env::EventType;
+use std::cell::RefCell;
+use std::rc::Rc;
+
+use types::*;
+use event::EventType;
+use instruction::Instruction;
 
 pub type Block = Vec<Instruction>;
 pub type Code = Vec<Block>;
-
-type OrgRef = Rc<RefCell<Organism>>;
+pub type OrgRef = Rc<RefCell<Organism>>;
 
 #[derive(Debug)]
-pub struct Cell {
-    pub id: u64,
-    pub step: u64,
-    pub x: u64,
-    pub y: u64,
-    pub nrg: u64,
+pub struct Organism {
+    pub id: CellID,
+    pub step: Step,
+    pub x: Coord,
+    pub y: Coord,
+    pub nrg: Energy,
     code: Code,
-    cb: usize,
-    ip: usize,
+    cb: CB,
+    ip: IP,
     is_running: bool,
-    call: Vec<(usize, usize)>,
+    call: Vec<(CB, IP)>,
     data: Vec<Number>,
 }
 
-impl Cell {
-    pub fn new(id: CellID, x: u64, y: u64, step: u64, nrg: u64, code: Code) -> Cell {
-        Cell {
+impl Organism {
+    pub fn new(id: CellID, x: Coord, y: Coord, step: Step, nrg: Energy, code: Code) -> Organism {
+        Organism {
             id: id,
             step: step,
             x: x,
@@ -49,7 +52,8 @@ impl Cell {
         } else {
             res = Some(EventType::Zombify);
         }
-        // add code to check if this cell should die
+        // add code to check if this cell should die/zombify
+        // e.g. used too much energy
         res
     }
 
@@ -61,7 +65,7 @@ impl Cell {
         }
     }
 
-    pub fn is_running(&self) -> bool {
+    fn is_running(&self) -> bool {
         self.is_running
     }
 
@@ -95,6 +99,7 @@ impl Cell {
             self.cb = cb;
         }
     }
+
     pub fn push(&mut self, n: Number) {
         self.data.push(n);
     }
