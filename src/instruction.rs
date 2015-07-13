@@ -328,20 +328,20 @@ fn instr_binary_notnull<F>(cell: &mut Cell, f: F) -> Option<EventType>
 
 fn instr_move(cell: &mut Cell) -> Option<EventType> {
     cell.pop(2).and_then(|v| {
-        Some(EventType::Mov{ dir: Direction::from_coords(v[0], v[1]) })
+        Some(EventType::Mov{ cellID: cell.id, dir: Direction::from_coords(v[0], v[1]) })
     })
 }
 
 fn instr_eat(cell: &mut Cell) -> Option<EventType> {
     cell.pop(2).and_then(|v| {
-        Some(EventType::Eat{ dir: Direction::from_coords(v[0], v[1]) })
+        Some(EventType::Eat{ cellID: cell.id, dir: Direction::from_coords(v[0], v[1]) })
     })
 }
 
 fn instr_spawn(cell: &mut Cell) -> Option<EventType> {
     cell.pop(3).and_then(|v| {
         if v[2] >= 0 {
-            Some(EventType::Spawn { dir: Direction::from_coords(v[0], v[1]), nrg: v[2] as u64 })
+            Some(EventType::Spawn { cellID: cell.id, dir: Direction::from_coords(v[0], v[1]), nrg: v[2] as u64 })
         } else {
             None
         }

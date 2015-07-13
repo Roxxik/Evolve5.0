@@ -30,7 +30,7 @@ impl Env {
 
     pub fn put(&mut self, mut cell: Cell) {
         cell.step = self.step;
-        //self.field.put(cell.id);
+        self.field.put(&cell);
         self.runnable.push((cell.id, self.step));
         self.cells.insert(cell.id, cell);
     }
@@ -47,14 +47,15 @@ impl Env {
         while self.runnable.peek().map_or(
             false, // runnablequeue is empty -> return false
             |c| c.1 == self.step
-            //c.step == self.step
         ) {
             let cell = self.cells.get_mut(&self.runnable.pop().unwrap().0).unwrap();
-            println!("found {}",cell.id);
+            println!("found cell {:?}",cell);
             if let Some(eventtype) = cell.step() {
-                self.blocking.push(Event::new(eventtype, cell));
+                self.blocking.push(Event::new(eventtype, cell.step));
+                println!("cell blocked");
             } else {
                 self.runnable.push((cell.id,cell.step));
+                println!("going on");
             }
         }
 
@@ -119,47 +120,71 @@ impl Direction {
 
 #[derive(Debug,Clone,Copy,Eq,PartialEq)]
 pub enum EventType{
-    Mov   { dir: Direction },
-    Eat   { dir: Direction },
-    Spawn { dir: Direction, nrg: u64 },
-    Dead,
+    Mov     { cellID: CellID, dir: Direction },
+    Eat     { cellID: CellID, dir: Direction },
+    Spawn   { cellID: CellID, dir: Direction, nrg: u64 },
+    Zombify { cellID: CellID },
+    Die,
 }
 
-#[derive(Debug)]
+#[derive(Debug,Clone,Copy,Eq,PartialEq)]
 struct Event{
     ty: EventType,
-    id: CellID,
     step: u64,
 }
 
 impl Event {
-    pub fn new(ty: EventType, cell: &mut Cell) -> Event {
+    pub fn new(ty: EventType, step: u64) -> Event {
         Event{
             ty: ty,
-            id: cell.id,
-            step: cell.step,
+            step: step,
         }
     }
 
     pub fn execute(self, env: &mut Env) {
+        match self.ty {
+            EventType::Zombify{ cellID: cellID } => {
+                let cell = env.cells.remove(&cellID).unwrap();
+                env.blocking.push(Event{
+                    ty: EventType::Die,
+                    step: env.step + 100,//hardcoded for now will be replaced later by some kind of decay
+                });
+                //replace cell with corpse
+                env.field.zombify(cell);
+            }
+            EventType::Die => {
+
+            }
+            _ => {
+                env.field.execute(self);
+            }
+        }
+        /*
+        if self.ty == EventType::Zombify {
+            let cell = env.cells.remove(&self.ty.cellID).unwrap();
+            env.blocking.push(Event{
+                ty: EventType::Die,
+                step: env.step + 100,//hardcoded for now will be replaced later by some kind of decay
+            });
+            //replace cell with corpse
+            env.field.zombify(cell);
+        } else if self.ty == EventType::Die {
+            //cleanup
+        } else {
+            let cell = env.cells.get_mut(&self.ty.cellID).unwrap();
+            env.field.execute(self, cell);
+            env.runnable.push((cell.id, cell.step));
+        }*/
+
         // fixme: this just drops the event...
-        let cell = env.cells.get_mut(&self.id).unwrap();
+        //let cell = env.cells.get_mut(&self.id).unwrap();
         // manipulate the environment accordingly,
         // push result to cells data stack
         // increment cells step
-        cell.step += 1;
+        //cell.step += 1;
         // insert cell into runnable
-        env.runnable.push((cell.id, cell.step));
+        //env.runnable.push((cell.id, cell.step));
         // increment cellcount of cells step
-    }
-}
-
-impl Eq for Event {}
-
-impl PartialEq for Event {
-    fn eq(&self, other: &Event) -> bool {
-        self.ty == other.ty
-        && self.id.eq(&other.id)
     }
 }
 

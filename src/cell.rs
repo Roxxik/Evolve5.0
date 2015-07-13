@@ -12,6 +12,7 @@ pub struct Cell {
     pub step: u64,
     x: u64,
     y: u64,
+    nrg: u64,
     code: Code,
     cb: usize,
     ip: usize,
@@ -45,7 +46,7 @@ impl Cell {
                 self.step += 1;
             }
         } else {
-            res = EventType::Dead;
+            res = Some(EventType::Zombify{ cellID: self.id });
         }
         // add code to check if this cell should die
         res
