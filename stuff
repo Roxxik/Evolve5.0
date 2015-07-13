@@ -1,0 +1,14 @@
+Field:
+struct Field {
+    cols: u64,
+    rows: u64,
+    field: BTreeMap<(u64,u64),Rc<RefCell<Organism>>>,
+}
+env:
+struct Env {
+
+}
+
+struct Event {
+    
+}

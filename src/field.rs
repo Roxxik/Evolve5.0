@@ -51,6 +51,6 @@ impl Field {
 
 #[derive(Debug,Clone,Copy)]
 enum CellState {
-    Living(CellID),
+    Living(Cell),
     Dead(u64),//the energy contained in the corpse
 }
