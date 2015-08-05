@@ -111,29 +111,21 @@ impl Instruction {
             Mul     => instr_binary(org, |x, y| x * y),
             Div     => instr_binary_notnull(org, |x, y| x / y),
             Mod     => instr_binary_notnull(org, |x, y| x % y),
-            Eq      => instr_binary(org, |x, y| bool_to_int(x == y)),
-            Ne      => instr_binary(org, |x, y| bool_to_int(x != y)),
-            Lt      => instr_binary(org, |x, y| bool_to_int(x  < y)),
-            Gt      => instr_binary(org, |x, y| bool_to_int(x  > y)),
-            Le      => instr_binary(org, |x, y| bool_to_int(x <= y)),
-            Ge      => instr_binary(org, |x, y| bool_to_int(x >= y)),
+            Eq      => instr_binary(org, |x, y| (x == y) as Number),
+            Ne      => instr_binary(org, |x, y| (x != y) as Number),
+            Lt      => instr_binary(org, |x, y| (x  < y) as Number),
+            Gt      => instr_binary(org, |x, y| (x  > y) as Number),
+            Le      => instr_binary(org, |x, y| (x <= y) as Number),
+            Ge      => instr_binary(org, |x, y| (x >= y) as Number),
             Or      => instr_binary(org, |x, y| x | y),
             And     => instr_binary(org, |x, y| x & y),
             Xor     => instr_binary(org, |x, y| x ^ y),
-            Min     => instr_binary(org, |x, y| if x > y {x} else {y}),
-            Max     => instr_binary(org, |x, y| if x < y {x} else {y}),
+            Min     => instr_binary(org, |x, y| if x > y { x } else { y }),
+            Max     => instr_binary(org, |x, y| if x < y { x } else { y }),
             Mov     => instr_move(org),
             //Eat     => instr_eat(org),
             Spawn   => instr_spawn(org),
         }
-    }
-}
-
-fn bool_to_int(b: bool) -> Number {
-    if b {
-        1
-    } else {
-        0
     }
 }
 
